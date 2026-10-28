@@ -1,7 +1,7 @@
 # TechFeed の要件と設計
 
 ## 目的
-Compose を中心に、通信・状態管理・永続化を含む Android 開発を学ぶ。
+IT ニュースを複数の配信元から取得し、絞り込み、記事の保存、英語記事の日本語翻訳を行う Android アプリを提供する。
 
 ## 初期実装
 - Android Developers: https://developer.android.com/static/blog/atom.xml

@@ -1,6 +1,6 @@
 # TechFeed
 
-IT ニュースを集める Android 学習用アプリです。Compose / Material 3 の画面に、RSS／Atom の取得、ViewModel と StateFlow による状態管理、Room による保存記事の永続化を接続しています。
+IT ニュースを集める Android アプリです。Compose / Material 3 の画面に、RSS／Atom の取得、ViewModel と StateFlow による状態管理、Room による保存記事の永続化を接続しています。
 
 起動時と「更新」で Android Developers、Publickey、ITmedia NEWS、Impress Watch、Qiita、Zenn、Ars Technica、IPA お知らせ、IPA セキュリティのフィードを取得します。取得元と話題タグは別々の段で表示し、組み合わせて絞り込めます。取得元は並列に取得します。Qiita と Zenn はそれぞれのトレンド配信順で先頭最大30件を表示します。記事の概要を確認し、元記事をブラウザーで開けます。保存したタイトル・概要・URL は再起動後も端末内に残り、オフラインでも確認できます。全文の保存、ログイン、端末間同期、定期更新はありません。取得失敗時に未保存のニュースをディスクから復元する機能はありません。
 
@@ -35,9 +35,9 @@ Git は初期化済みで、pre-commit からローカルの Gitleaks を呼び�
 
 ニュース一覧上部の見出し・説明・件数は表示せず、「取得元」「タグ」の2段だけにする。下方向に読み進めると絞り込み欄を折りたたみ、上方向のスクロールで再表示する。ヘッダーの操作アイコンは常に表示する。取得元・タグ・保存済みの切り替え時は先頭へ戻し、絞り込み欄を再表示する。
 
-## Hilt と DI の学習
+## 依存性の注入
 
-ViewModel は Repository・設定 Repository・翻訳サービスをコンストラクターで受け取ります。Hilt が依存関係を組み立て、Room の生成方法は core/di/、ML Kit は feature/translation/di/ の Module にまとめています。導入前後の比較と読む順序は [Hilt の学習メモ](docs/hilt-di.md) を参照してください。
+ViewModel は Repository・設定 Repository・翻訳サービスをコンストラクターで受け取ります。Hilt が依存関係を組み立て、Room の生成方法は core/di/、ML Kit は feature/translation/di/ の Module にまとめています。依存関係の構成とスコープは [Hilt による依存性の注入](docs/hilt-di.md) を参照してください。
 
 
 ## コードの配置

@@ -1,20 +1,8 @@
-# TechFeed で DI と Hilt を確認する
+# Hilt による依存性の注入
 
-## 今回変わったこと
+## ViewModel への依存の注入
 
-DI（Dependency Injection、依存性の注入）は、必要なオブジェクトを使う側が自分で作らず、外部から受け取ることです。Hilt は、その生成と受け渡しを自動化します。
-
-以前の ViewModel は生成方法まで知っていました。
-
-```kotlin
-class NewsViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = NewsRepository(application)
-    private val settingsRepository = SettingsRepository(application)
-    private val translator by lazy { ArticleTranslator() }
-}
-```
-
-現在は、画面の状態管理に必要な依存をコンストラクターで宣言しています。
+NewsViewModel は、記事取得・保存、設定、翻訳の各サービスをコンストラクターで受け取ります。Hilt が依存関係の生成と受け渡しを管理します。
 
 ```kotlin
 @HiltViewModel
@@ -45,7 +33,7 @@ flowchart TD
 - ArticleTranslator は外部ライブラリの Translator を受け取り、翻訳処理を担当します。
 - StorageModule と TranslationModule が、外部ライブラリのオブジェクトの生成方法を教えます。
 
-## 読む順序
+## 構成ファイル
 
 1. TechFeedApplication.kt の @HiltAndroidApp：Hilt の開始点。Manifest にこの Application を登録しています。
 2. MainActivity.kt の @AndroidEntryPoint と app/TechFeedApp.kt の hiltViewModel()：Android／Compose と Hilt の接続。
@@ -73,12 +61,12 @@ DB の手書きの static 相当の保持処理は取り除き、Hilt に任せ�
 
 - NewsViewModel の init にブレークポイントを置いて起動すると、コンストラクター引数に Repository と Translator が渡されていることを確認できます。
 - Repository のコンストラクターにブレークポイントを置くと、画面コードから直接生成していないことを追えます。
-- ビルド後の app/app/build/generated 配下に、feature/news/ui/NewsViewModel_Factory や DaggerTechFeedApplication_HiltComponents_SingletonC などの生成コードがあります。編集せず、依存が渡される箇所を読む教材として使えます。
+- ビルド後の app/app/build/generated 配下に、feature/news/ui/NewsViewModel_Factory や DaggerTechFeedApplication_HiltComponents_SingletonC などの生成コードがあります。これらはビルド時に生成されるため、直接編集しません。
 - 通常の単体テストの FeedParser() は、そのまま使えます。@Inject を付けても、Hilt 経由でしか生成できなくなるわけではありません。
 
 不足する依存の生成方法があると Hilt のコンパイル時に検出されます。動作を試すために意図的に設定を壊す必要はありません。
 
-今後 Repository を interface に分ければ、テスト用の実装を渡す構成も学べます。今回の導入では、DI の流れを追いやすくするため interface の追加までは行っていません。
+Repository は具象クラスを注入しています。テスト用の実装への差し替えが必要になった場合は、interface の導入を検討します。
 
 ## ビルド設定と参考
 

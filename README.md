@@ -53,3 +53,7 @@ Kotlin の起点は app/app/src/main/java/com/example/techfeed/ です。
 | core/ | 共有モデル・Room DB・配信元・タグ・URL／リンク処理・DBのDI |
 
 MainActivity と TechFeedApplication は起点として直下に残しています。テストも src/test/ 内で対象と同じパッケージに配置しています。詳しい責務と依存方向は [フォルダ構成](docs/architecture.md) を参照してください。
+
+## Android テスト
+
+Roomの保存・削除・再オープン、DataStoreの保存・再生成、Composeの絞り込み等を src/androidTest/ に用意しています。端末・エミュレーターを接続して ./scripts/check-android.sh で実行します。テスト専用のDB・設定ファイルを使用します。対象と実行方法は [Androidテスト](docs/android-tests.md) を参照してください。

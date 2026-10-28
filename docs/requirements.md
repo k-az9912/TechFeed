@@ -92,3 +92,9 @@ Compose を中心に、通信・状態管理・永続化を含む Android 開発
 - 画面部品、通信、解析、保存、設定値、タグ・順序計算をファイル単位で分離する。
 - 保存データの名前とスキーマを維持する。共通層から各機能への依存を作らない。
 - 詳細なファイル配置とテストの対応は docs/architecture.md を参照。
+
+## Android テスト
+- Room の保存・削除・再オープンと DataStore の設定保持をテスト専用データで検証する。
+- SettingsRepository は DataStore を受け取り、SettingsModule が同じ本番保存先 news_settings を提供する。
+- Compose の絞り込み・保存表示・設定・翻訳確認と、Espresso の戻る操作を検証する。
+- 詳細と実行結果は docs/android-tests.md を参照。

@@ -38,8 +38,31 @@
 - core は feature や app を参照しません。app は各機能をつなぎます。
 - 現在の NewsViewModel は、一覧から設定・翻訳も操作する調整役です。その処理を分散させず、今回の変更では動作を維持しています。
 
+## テスト
+
+src/test/java/com/example/techfeed/ も対象に対応したパッケージ構成です。既存20件の内容は維持し、責務ごとに8クラスへ分けました。
+
+| 対象 | テストクラス | 件数 |
+|---|---|---:|
+| RSS／Atom解析 | feature/news/data/remote/FeedParserTest | 5 |
+| 記事の並び替え・日時 | feature/news/domain/ArticleOrderingTest | 3 |
+| 記事の絞り込み | feature/news/domain/ArticleFiltersTest | 1 |
+| URL検査 | core/network/ArticleUrlsTest | 1 |
+| タグ判定 | core/tags/ArticleTagsTest | 5 |
+| 英語配信元判定 | core/feed/FeedSourcesTest | 1 |
+| 設定の初期値 | feature/settings/model/NewsSettingsTest | 1 |
+| 設定の表示順 | feature/settings/model/DisplayOrderTest | 3 |
+
 ## 永続データ
 
 DB名 news.db、テーブル saved_articles、DBバージョン1、DataStore名 news_settings と各キーを維持します。Roomスキーマの保存フォルダはDBクラスの新パッケージに合わせて com.example.techfeed.core.database.NewsDatabase に移しています。アプリの applicationId と namespace は変えていません。
 
 Android の res/ は標準構成のままです。機能別の Gradle モジュール化は今回行っていません。
+
+## 整理後の検証（2026-10-28）
+
+- Android Studio で assembleDebug、testDebugUnitTest、lintDebug 成功。
+- 整理した8クラス・20テストはすべて成功（失敗・エラー・スキップ0件）。
+- lint：エラー0件・警告16件。秘密情報検査：検出なし。
+- 再生成された Room スキーマは整理前とバイト単位で一致。
+- 起動操作後の画面確認は、操作ツールのタイムアウトにより未完了。

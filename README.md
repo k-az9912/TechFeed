@@ -10,7 +10,7 @@ IT ニュースを集める Android 学習用アプリです。Compose / Materia
 2. Gradle JDK に Android Studio の同梱 JDK 17 以上を設定し、Android SDK 36 を用意します。
 3. Gradle 同期後、Android 8.0（API 26）以上の実機またはエミュレーターで実行します。初回の依存関係取得にはネットワークが必要です。
 
-`./scripts/check-language.sh` で lint、単体テスト、debug ビルドを実行できます。設計は docs/requirements.md を参照してください。
+`./scripts/check-language.sh` で lint、単体テスト、debug ビルドを実行できます。フィード解析・URL 検査・日付処理の単体テストを含みます。設計は docs/requirements.md を参照してください。
 
 ## Git と秘密情報の検査
 
@@ -52,4 +52,4 @@ Kotlin の起点は app/app/src/main/java/com/example/techfeed/ です。
 | feature/translation/ | ML Kit 翻訳・モデル取得・確認ダイアログ・DI |
 | core/ | 共有モデル・Room DB・配信元・タグ・URL／リンク処理・DBのDI |
 
-MainActivity と TechFeedApplication は起点として直下に残しています。詳しい責務と依存方向は [フォルダ構成](docs/architecture.md) を参照してください。
+MainActivity と TechFeedApplication は起点として直下に残しています。テストも src/test/ 内で対象と同じパッケージに配置しています。詳しい責務と依存方向は [フォルダ構成](docs/architecture.md) を参照してください。

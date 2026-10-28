@@ -15,6 +15,6 @@ jobs:
         with:
           go-version: '1.24'
       - name: Install Gitleaks
-        run: go install github.com/gitleaks/gitleaks/v8@v8.24.2
+        run: go install github.com/zricethezav/gitleaks/v8@v8.24.2
       - name: Scan Git history
         run: gitleaks git --redact --exit-code 1 .

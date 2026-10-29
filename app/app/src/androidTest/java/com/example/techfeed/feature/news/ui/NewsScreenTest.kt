@@ -70,7 +70,9 @@ class NewsScreenTest {
         compose.onNode(isDialog()).assertIsDisplayed()
 
         // Espresso sends the Android Back action; Compose assertions verify the result.
-        Espresso.pressBack()
+        Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.isRoot())
+            .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog())
+            .perform(androidx.test.espresso.action.ViewActions.pressBack())
         compose.waitForIdle()
         compose.onNode(isDialog()).assertDoesNotExist()
         compose.onNodeWithText(publickeySecurity.title).assertIsDisplayed()

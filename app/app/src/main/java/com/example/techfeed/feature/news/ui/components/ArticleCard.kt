@@ -49,12 +49,14 @@ fun ArticleCard(
                 Text(
                     tags.joinToString(" · "),
                     style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(top = 12.dp),
+                    modifier = Modifier.weight(1f).padding(top = 12.dp, end = 8.dp),
                 )
                 TextButton(onClick = { toggleSaved() }) {
                     Text(
                         if (saved) stringResource(R.string.article_saved)
                         else stringResource(R.string.save_article),
+                        maxLines = 1,
+                        softWrap = false,
                     )
                 }
             }

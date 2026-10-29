@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.techfeed.testsupport.publickeySecurity
+import java.util.UUID
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -12,7 +13,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class ArticleDaoTest {
@@ -20,16 +20,19 @@ class ArticleDaoTest {
     private val databaseName = "article-test-${UUID.randomUUID()}.db"
     private lateinit var database: NewsDatabase
 
-    @Before fun openTestDatabase() {
+    @Before
+    fun openTestDatabase() {
         database = Room.databaseBuilder(context, NewsDatabase::class.java, databaseName).build()
     }
 
-    @After fun removeOnlyTestDatabase() {
+    @After
+    fun removeOnlyTestDatabase() {
         database.close()
         context.deleteDatabase(databaseName)
     }
 
-    @Test fun saveAndRemoveUpdateObservedArticles() = runBlocking {
+    @Test
+    fun saveAndRemoveUpdateObservedArticles() = runBlocking {
         val dao = database.articles()
         assertTrue(dao.observe().first().isEmpty())
 
@@ -42,7 +45,8 @@ class ArticleDaoTest {
         assertFalse(dao.contains(publickeySecurity.id))
     }
 
-    @Test fun savedArticleSurvivesDatabaseReopen() = runBlocking {
+    @Test
+    fun savedArticleSurvivesDatabaseReopen() = runBlocking {
         database.articles().save(publickeySecurity)
         database.close()
         database = Room.databaseBuilder(context, NewsDatabase::class.java, databaseName).build()
@@ -50,7 +54,8 @@ class ArticleDaoTest {
         assertEquals(listOf(publickeySecurity), database.articles().observe().first())
     }
 
-    @Test fun togglingTwiceDoesNotLeaveDuplicates() = runBlocking {
+    @Test
+    fun togglingTwiceDoesNotLeaveDuplicates() = runBlocking {
         val dao = database.articles()
         dao.toggle(publickeySecurity)
         assertEquals(listOf(publickeySecurity), dao.observe().first())

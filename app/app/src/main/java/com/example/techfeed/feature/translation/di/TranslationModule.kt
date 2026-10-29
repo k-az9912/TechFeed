@@ -15,10 +15,11 @@ import dagger.hilt.android.scopes.ViewModelScoped
 object TranslationModule {
     @Provides
     @ViewModelScoped
-    fun provideTranslator(): Translator = Translation.getClient(
-        TranslatorOptions.Builder()
-            .setSourceLanguage(TranslateLanguage.ENGLISH)
-            .setTargetLanguage(TranslateLanguage.JAPANESE)
-            .build()
-    )
+    fun provideTranslator(): Translator =
+        Translation.getClient(
+            TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(TranslateLanguage.JAPANESE)
+                .build(),
+        )
 }

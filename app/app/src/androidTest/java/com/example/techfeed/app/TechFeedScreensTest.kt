@@ -22,9 +22,10 @@ class TechFeedScreensTest {
     @get:Rule val compose = createComposeRule()
 
     private fun setScreens() {
-        val articles = (1..30).map {
-            publickeySecurity.copy(id = "https://example.com/$it", title = "記事 $it")
-        }
+        val articles =
+            (1..30).map {
+                publickeySecurity.copy(id = "https://example.com/$it", title = "記事 $it")
+            }
         compose.setContent {
             MaterialTheme {
                 TechFeedScreens(
@@ -33,19 +34,24 @@ class TechFeedScreensTest {
                             state = NewsState(articles + listOf(itmediaSecurity, publickeyAi)),
                             saved = articles + listOf(itmediaSecurity, publickeyAi),
                             settings = uiSettings,
-                            openSettings = openSettings
+                            openSettings = openSettings,
                         )
                     },
-                    settings = { back -> TextButton(onClick = back) { Text("一覧へ戻る") } }
+                    settings = { back -> TextButton(onClick = back) { Text("一覧へ戻る") } },
                 )
             }
         }
     }
 
-    private fun scrollPosition(): Float = compose.onNodeWithTag("news_list")
-        .fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange].value()
+    private fun scrollPosition(): Float =
+        compose
+            .onNodeWithTag("news_list")
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.VerticalScrollAxisRange]
+            .value()
 
-    @Test fun settingsRoundTripKeepsSavedTabFiltersAndScrollPosition() {
+    @Test
+    fun settingsRoundTripKeepsSavedTabFiltersAndScrollPosition() {
         setScreens()
         compose.onNodeWithContentDescription("保存済み記事").performClick()
         compose.onNodeWithTag("filter:取得元:Publickey").performClick()
@@ -72,7 +78,8 @@ class TechFeedScreensTest {
         assertEquals(0f, scrollPosition(), 0.1f)
     }
 
-    @Test fun androidBackFromSettingsKeepsSourceSelection() {
+    @Test
+    fun androidBackFromSettingsKeepsSourceSelection() {
         setScreens()
         compose.onNodeWithTag("filter:取得元:ITmedia NEWS").performClick()
         compose.onNodeWithContentDescription("設定").performClick()

@@ -1,15 +1,15 @@
 package com.example.techfeed.app
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.techfeed.feature.news.ui.NewsScreen
 import com.example.techfeed.feature.news.ui.NewsViewModel
 import com.example.techfeed.feature.settings.model.NewsSettings
 import com.example.techfeed.feature.settings.ui.NewsSettingsScreen
-import androidx.activity.compose.BackHandler
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 
 @Composable
 fun TechFeedApp(model: NewsViewModel = hiltViewModel()) {
@@ -30,23 +30,29 @@ fun TechFeedApp(model: NewsViewModel = hiltViewModel()) {
                 translate = model::translate,
                 openSettings = openSettings,
                 modelState = modelState,
-                downloadModel = { article -> model.downloadModel(article) }
+                downloadModel = { article -> model.downloadModel(article) },
             )
         },
         settings = { back ->
             NewsSettingsScreen(
-                settings, state.error, model::setSource, model::setTag,
-                model::moveSource, model::moveTag, modelState,
-                { model.downloadModel() }, back
+                settings = settings,
+                error = state.error,
+                setSource = model::setSource,
+                setTag = model::setTag,
+                moveSource = model::moveSource,
+                moveTag = model::moveTag,
+                modelState = modelState,
+                downloadModel = { model.downloadModel() },
+                back = back,
             )
-        }
+        },
     )
 }
 
 @Composable
 internal fun TechFeedScreens(
     news: @Composable (openSettings: () -> Unit) -> Unit,
-    settings: @Composable (back: () -> Unit) -> Unit
+    settings: @Composable (back: () -> Unit) -> Unit,
 ) {
     var showSettings by rememberSaveable { mutableStateOf(false) }
     val stateHolder = rememberSaveableStateHolder()

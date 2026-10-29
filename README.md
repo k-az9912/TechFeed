@@ -27,6 +27,8 @@ IT ニュースの取得・絞り込み・保存・翻訳に対応した Android
 ./scripts/check-android.sh   # AndroidTest（端末接続が必要）
 ```
 
+GitHub Actions：PR・develop／main への push で lint・JUnit・debug ビルドを実行。検証レポートを7日間保存。
+
 コミット前フック：pre-commit と Gitleaks の導入後、`pre-commit install`。GitHub Actions でも履歴を検査。
 
 ## 制約

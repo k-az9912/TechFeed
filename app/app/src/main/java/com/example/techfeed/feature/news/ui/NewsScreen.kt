@@ -81,9 +81,14 @@ fun NewsScreen(
     val activeTag = category.takeIf { it in categories } ?: "すべて"
     val visible = filterArticles(if (selectedTab == 0) state.articles else saved, activeSource, activeTag)
 
-    LaunchedEffect(selectedTab, activeSource, activeTag) {
-        filtersExpanded = true
-        listState.scrollToItem(0)
+    val filterSelection = listOf(selectedTab.toString(), activeSource, activeTag)
+    var previousSelection by rememberSaveable { mutableStateOf(filterSelection) }
+    LaunchedEffect(filterSelection) {
+        if (previousSelection != filterSelection) {
+            filtersExpanded = true
+            listState.scrollToItem(0)
+            previousSelection = filterSelection
+        }
     }
 
     Scaffold(

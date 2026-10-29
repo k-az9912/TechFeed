@@ -19,6 +19,8 @@
 - `core` は `feature`・`app` に依存しない。
 - ニュース固有の解析・並べ替えは `feature/news` に配置。
 - `NewsViewModel` がニュース・設定・翻訳を調整。
+- `TechFeedScreens` が画面を切り替え、`SaveableStateHolder` で各画面の状態を保持。
+- 更新結果の判定は `feature/news/domain/FeedRefreshResult.kt` に分離。全失敗時のみ前回一覧を使用。
 - インスタンスの生成・共有範囲は [Hilt 構成](hilt-di.md) に集約。
 
 ## 永続データ

@@ -4,7 +4,7 @@ import com.example.techfeed.core.feed.feedSources
 import com.example.techfeed.core.feed.isEnglishArticle
 import com.example.techfeed.core.model.Article
 import com.example.techfeed.feature.news.data.NewsRepository
-import com.example.techfeed.feature.news.domain.orderArticles
+import com.example.techfeed.feature.news.domain.resolveFeedResults
 import com.example.techfeed.feature.settings.data.SettingsRepository
 import com.example.techfeed.feature.settings.model.NewsSettings
 import com.example.techfeed.feature.translation.data.ArticleTranslator
@@ -133,8 +133,6 @@ class NewsViewModel @Inject constructor(
         fetchJob?.cancel()
         _state.update { it.copy(articles = it.articles.filter { article -> article.source in enabled }, loading = true, error = null) }
         fetchJob = viewModelScope.launch {
-            val articles = mutableListOf<Article>()
-            val failed = mutableListOf<String>()
             val results = supervisorScope {
                 feedSources.filter { it.name in enabled }.map { source ->
                     async {
@@ -144,13 +142,13 @@ class NewsViewModel @Inject constructor(
                     }
                 }.awaitAll()
             }
-            results.forEach { (source, result) ->
-                result.onSuccess { articles += it }.onFailure { failed += source.name }
-            }
-            _state.update {
+            _state.update { previous ->
+                val result = resolveFeedResults(previous.articles, results)
                 NewsState(
-                    if (articles.isEmpty()) it.articles else orderArticles(articles),
-                    error = failed.takeIf { it.isNotEmpty() }?.let { "取得できませんでした：${it.joinToString()}。再試行してください。" }
+                    articles = result.articles,
+                    error = result.failedSources.takeIf { it.isNotEmpty() }?.let {
+                        "取得できませんでした：${it.joinToString()}。再試行してください。"
+                    }
                 )
             }
         }

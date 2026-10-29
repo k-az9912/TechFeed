@@ -11,7 +11,7 @@ import com.example.techfeed.feature.news.data.NewsRepository
 import com.example.techfeed.feature.news.domain.resolveFeedResults
 import com.example.techfeed.feature.settings.data.SettingsRepository
 import com.example.techfeed.feature.settings.model.NewsSettings
-import com.example.techfeed.feature.translation.data.ArticleTranslator
+import com.example.techfeed.feature.translation.domain.TranslationService
 import com.example.techfeed.feature.translation.model.ArticleTranslation
 import com.example.techfeed.feature.translation.model.TranslationModelState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +29,7 @@ class NewsViewModel
 constructor(
     private val repository: NewsRepository,
     private val settingsRepository: SettingsRepository,
-    private val translator: ArticleTranslator,
+    private val translator: TranslationService,
 ) : ViewModel() {
     private val _state = MutableStateFlow(NewsState())
     val state = _state.asStateFlow()

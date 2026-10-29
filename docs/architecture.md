@@ -19,6 +19,7 @@
 - `core` は `feature`・`app` に依存しない。
 - ニュース固有の解析・並べ替えは `feature/news` に配置。
 - `NewsViewModel` がニュース・設定・翻訳を調整。
+- ニュースは `NewsRepository`、翻訳は `TranslationService` を境界とし、Hilt で本番実装に接続。ViewModel テストは遅延・失敗を制御できる実装を使用。
 - `TechFeedScreens` が画面を切り替え、`SaveableStateHolder` で各画面の状態を保持。
 - 更新結果の判定は `feature/news/domain/FeedRefreshResult.kt` に分離。全失敗時のみ前回一覧を使用。
 - インスタンスの生成・共有範囲は [Hilt 構成](hilt-di.md) に集約。
@@ -36,7 +37,7 @@ DB スキーマ変更時は migration を追加。
 
 ## テスト配置
 
-- `src/test/`：解析・並び替え・絞り込み・URL・タグ・設定値の JUnit テスト。
+- `src/test/`：解析・並び替え・絞り込み・URL・タグ・設定値、ViewModel の状態遷移の JUnit テスト。
 - `src/androidTest/`：Room・DataStore・Compose／Espresso。[対象と実行方法](android-tests.md)。
 
 いずれも対象コードに対応するパッケージに配置。

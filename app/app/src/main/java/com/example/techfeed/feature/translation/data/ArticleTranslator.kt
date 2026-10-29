@@ -1,6 +1,7 @@
 package com.example.techfeed.feature.translation.data
 
 import com.example.techfeed.core.model.Article
+import com.example.techfeed.feature.translation.domain.TranslationService
 import com.example.techfeed.feature.translation.model.ArticleTranslation
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.common.model.RemoteModelManager
@@ -12,18 +13,18 @@ import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 
 @ViewModelScoped
-class ArticleTranslator @Inject constructor(private val client: Translator) : AutoCloseable {
+class ArticleTranslator @Inject constructor(private val client: Translator) : TranslationService {
 
-    suspend fun isModelReady(): Boolean =
+    override suspend fun isModelReady(): Boolean =
         RemoteModelManager.getInstance()
             .isModelDownloaded(TranslateRemoteModel.Builder(TranslateLanguage.JAPANESE).build())
             .await()
 
-    suspend fun downloadModel() {
+    override suspend fun downloadModel() {
         client.downloadModelIfNeeded(DownloadConditions.Builder().build()).await()
     }
 
-    suspend fun translate(article: Article): ArticleTranslation {
+    override suspend fun translate(article: Article): ArticleTranslation {
         val title = client.translate(article.title).await()
         val summary =
             if (article.summary.isBlank()) "" else client.translate(article.summary).await()

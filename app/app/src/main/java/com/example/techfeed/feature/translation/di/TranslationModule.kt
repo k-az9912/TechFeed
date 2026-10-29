@@ -1,5 +1,7 @@
 package com.example.techfeed.feature.translation.di
 
+import com.example.techfeed.feature.translation.data.ArticleTranslator
+import com.example.techfeed.feature.translation.domain.TranslationService
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
@@ -13,6 +15,9 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @Module
 @InstallIn(ViewModelComponent::class)
 object TranslationModule {
+    @Provides
+    fun provideTranslationService(translator: ArticleTranslator): TranslationService = translator
+
     @Provides
     @ViewModelScoped
     fun provideTranslator(): Translator =

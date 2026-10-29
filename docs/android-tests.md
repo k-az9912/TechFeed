@@ -47,7 +47,7 @@ Android Studio では `androidTest` のクラス横から実行。
 | 検証 | 結果 |
 | --- | --- |
 | AndroidTest（Medium Phone API 37） | 32件成功、失敗・エラー・スキップ0件 |
-| JUnit | 30件成功、失敗・エラー・スキップ0件 |
+| JUnit | 41件成功、失敗・エラー・スキップ0件 |
 | assembleDebug | 成功 |
 | lintDebug | エラー0件、警告16件 |
 
@@ -82,3 +82,15 @@ Android Studio では `androidTest` のクラス横から実行。
 - アイコン：Adaptive Icon の描画を目視確認。モノクロリソースを検証。各ランチャーのマスク・テーマ表示は未確認。
 - 翻訳：処理中の無効化、失敗時の原文保持、再試行後の訳文表示とエラー解消を確認。モデル取得失敗後の再確認・再試行も対象。
 - 確認画像：端末のアプリ外部ファイル領域 `ui-check/`。ローカル取得先は `app/app/build/outputs/ui-check/`。
+
+
+## ViewModel の JUnit テスト
+
+`src/test/.../feature/news/ui/NewsViewModelTest.kt`、11件。`kotlinx-coroutines-test` で処理を停止・再開し、待ち時間や実通信に依存せず検証。
+
+- 翻訳・モデル取得：失敗後の再試行、エラー解消、重複実行防止、モデル・言語の条件。
+- モデル取得成功後の翻訳、モデル状態確認の失敗からの復帰。
+- 取得元変更時のキャンセル、遅れて返る旧応答の排除、連続更新、全取得元の無効化。
+- 更新失敗時の一覧保持と再取得、ViewModel 破棄時の翻訳キャンセル・クライアント解放。
+
+ViewModel と SettingsRepository は本番実装。NewsRepository・TranslationService と DataStore は制御可能なテスト実装。ML Kit・HTTP・永続化自体の検証は含まない。

@@ -8,6 +8,7 @@
 | --- | --- | ---: |
 | ArticleDaoTest | 保存・削除の観測、DB 再オープン、保存切り替え | 3 |
 | SettingsRepositoryTest | 取得元・タグ・表示順・全無効設定の永続化 | 3 |
+| TechFeedScreensTest | 設定画面往復後の選択・スクロール保持、Android の戻る操作 | 2 |
 | NewsScreenTest | AND 絞り込み、保存一覧、戻る操作、スクロール | 4 |
 | ArticleDetailDialogTest | モデル取得確認・キャンセル、原文切り替え、日本語記事 | 3 |
 | NewsSettingsScreenTest | スイッチ、並べ替え、モデル取得確認 | 3 |
@@ -35,11 +36,11 @@ Android Studio では `androidTest` のクラス横から実行。
 
 ## 最終実行結果
 
-2026-10-28、Android Studio 経由。
+2026-10-29、Android Studio 経由。
 
 | 検証 | 結果 |
 | --- | --- |
-| AndroidTest（Medium Phone API 37） | 16件成功、失敗・エラー・スキップ0件 |
-| JUnit | 20件成功、失敗・エラー・スキップ0件 |
+| AndroidTest（Medium Phone API 37） | 18件成功、失敗・エラー・スキップ0件 |
+| JUnit | 26件成功、失敗・エラー・スキップ0件 |
 | assembleDebug | 成功 |
 | lintDebug | エラー0件、警告17件 |

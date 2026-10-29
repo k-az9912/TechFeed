@@ -8,11 +8,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class NewsRepository @Inject constructor(
+class NewsRepository
+@Inject
+constructor(
     private val dao: ArticleDao,
-    private val feedClient: FeedClient
+    private val feedClient: FeedClient,
 ) {
     val saved = dao.observe()
+
     suspend fun toggle(article: Article) = dao.toggle(article)
+
     suspend fun fetch(source: FeedSource): List<Article> = feedClient.fetch(source)
 }

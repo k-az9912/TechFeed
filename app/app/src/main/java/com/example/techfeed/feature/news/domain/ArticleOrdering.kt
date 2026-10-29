@@ -1,9 +1,18 @@
 package com.example.techfeed.feature.news.domain
 
 import com.example.techfeed.core.model.Article
-internal fun publicationTime(value: String): java.time.Instant =
-    runCatching { java.time.OffsetDateTime.parse(value).toInstant() }.getOrElse {
-        runCatching { java.time.ZonedDateTime.parse(value, java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME).toInstant() }
+
+internal fun publicationTime(value: String): java.time.Instant = runCatching {
+    java.time.OffsetDateTime.parse(value).toInstant()
+}
+    .getOrElse {
+        runCatching {
+                java.time.ZonedDateTime.parse(
+                        value,
+                        java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME,
+                    )
+                    .toInstant()
+            }
             .getOrDefault(java.time.Instant.EPOCH)
     }
 

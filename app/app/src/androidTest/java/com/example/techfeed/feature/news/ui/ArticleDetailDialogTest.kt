@@ -17,13 +17,19 @@ import org.junit.runner.RunWith
 class ArticleDetailDialogTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun modelDownloadRequiresConfirmationAndCancelDoesNotStartIt() {
+    @Test
+    fun modelDownloadRequiresConfirmationAndCancelDoesNotStartIt() {
         var downloads = 0
         compose.setContent {
             MaterialTheme {
-                ArticleDetailDialog(englishArticle, ArticleTranslation(),
+                ArticleDetailDialog(
+                    englishArticle,
+                    ArticleTranslation(),
                     TranslationModelState(ready = false),
-                    downloadModel = { downloads++ }, translate = {}, dismiss = {})
+                    downloadModel = { downloads++ },
+                    translate = {},
+                    dismiss = {},
+                )
             }
         }
         compose.onNodeWithText("Google で翻訳").performClick()
@@ -38,17 +44,23 @@ class ArticleDetailDialogTest {
         compose.onNodeWithText("翻訳モデルをダウンロード").assertDoesNotExist()
     }
 
-    @Test fun downloadedModelTranslatesWithoutPromptAndUsesOneToggleButton() {
+    @Test
+    fun downloadedModelTranslatesWithoutPromptAndUsesOneToggleButton() {
         var translations = 0
         compose.setContent {
             var translation by remember { mutableStateOf(ArticleTranslation()) }
             MaterialTheme {
-                ArticleDetailDialog(englishArticle, translation, TranslationModelState(ready = true),
+                ArticleDetailDialog(
+                    englishArticle,
+                    translation,
+                    TranslationModelState(ready = true),
                     downloadModel = { error("Downloaded model must not request download") },
                     translate = {
                         translations++
                         translation = ArticleTranslation(title = "日本語の見出し", summary = "日本語の概要")
-                    }, dismiss = {})
+                    },
+                    dismiss = {},
+                )
             }
         }
         compose.onNodeWithText("Google で翻訳").performClick()
@@ -62,11 +74,18 @@ class ArticleDetailDialogTest {
         compose.runOnIdle { assertEquals(1, translations) }
     }
 
-    @Test fun japaneseArticleDoesNotOfferTranslation() {
+    @Test
+    fun japaneseArticleDoesNotOfferTranslation() {
         compose.setContent {
             MaterialTheme {
-                ArticleDetailDialog(publickeySecurity, ArticleTranslation(),
-                    TranslationModelState(ready = true), {}, {}, {})
+                ArticleDetailDialog(
+                    publickeySecurity,
+                    ArticleTranslation(),
+                    TranslationModelState(ready = true),
+                    {},
+                    {},
+                    {},
+                )
             }
         }
         compose.onNodeWithText(publickeySecurity.title).assertIsDisplayed()

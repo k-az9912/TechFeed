@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -94,12 +95,17 @@ fun ArticleDetailDialog(
                             stringResource(R.string.translation_notice),
                             style = MaterialTheme.typography.bodySmall,
                         )
-                        Image(
-                            painterResource(R.drawable.google_translate_attribution),
-                            contentDescription = stringResource(R.string.translation_attribution),
-                            modifier =
-                                Modifier.clickable { openLink("https://translate.google.com/") },
-                        )
+                        Surface(color = Color.White) {
+                            Image(
+                                painterResource(R.drawable.google_translate_attribution),
+                                contentDescription =
+                                    stringResource(R.string.translation_attribution),
+                                modifier =
+                                    Modifier.clickable {
+                                        openLink("https://translate.google.com/")
+                                    },
+                            )
+                        }
                     }
                 }
                 if (linkError) Text(stringResource(R.string.link_unavailable))

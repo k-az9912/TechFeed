@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -154,28 +155,36 @@ private fun OrderedSetting(
     change: (Boolean) -> Unit,
     move: (Int) -> Unit,
 ) {
-    Row(
-        Modifier.fillMaxWidth(),
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-    ) {
-        Text(label, modifier = Modifier.weight(1f))
-        IconButton(onClick = { move(-1) }, enabled = enabled && index > 0) {
-            Icon(
-                painterResource(R.drawable.ic_up),
-                contentDescription = stringResource(R.string.move_before, label),
-            )
+    val largeFont = LocalDensity.current.fontScale > 1.3f
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val stacked = largeFont || maxWidth < 360.dp
+        Column {
+            if (stacked) Text(label)
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+            ) {
+                if (!stacked) Text(label, modifier = Modifier.weight(1f))
+                IconButton(onClick = { move(-1) }, enabled = enabled && index > 0) {
+                    Icon(
+                        painterResource(R.drawable.ic_up),
+                        contentDescription = stringResource(R.string.move_before, label),
+                    )
+                }
+                IconButton(onClick = { move(1) }, enabled = enabled && index < size - 1) {
+                    Icon(
+                        painterResource(R.drawable.ic_down),
+                        contentDescription = stringResource(R.string.move_after, label),
+                    )
+                }
+                Switch(
+                    modifier = Modifier.testTag("setting_switch:$label"),
+                    checked = checked,
+                    onCheckedChange = change,
+                    enabled = enabled,
+                )
+            }
         }
-        IconButton(onClick = { move(1) }, enabled = enabled && index < size - 1) {
-            Icon(
-                painterResource(R.drawable.ic_down),
-                contentDescription = stringResource(R.string.move_after, label),
-            )
-        }
-        Switch(
-            modifier = Modifier.testTag("setting_switch:$label"),
-            checked = checked,
-            onCheckedChange = change,
-            enabled = enabled,
-        )
     }
 }

@@ -2,9 +2,11 @@ package com.example.techfeed.feature.news.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.techfeed.R
 import com.example.techfeed.core.feed.feedSources
 import com.example.techfeed.core.feed.isEnglishArticle
 import com.example.techfeed.core.model.Article
+import com.example.techfeed.core.ui.UiText
 import com.example.techfeed.feature.news.data.NewsRepository
 import com.example.techfeed.feature.news.domain.resolveFeedResults
 import com.example.techfeed.feature.settings.data.SettingsRepository
@@ -34,7 +36,7 @@ constructor(
     val saved =
         repository.saved
             .catch {
-                _state.update { it.copy(error = "保存済み記事を読み込めませんでした。") }
+                _state.update { it.copy(error = UiText(R.string.error_saved_load)) }
                 emit(emptyList())
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -54,13 +56,16 @@ constructor(
                 throw e
             } catch (_: Exception) {
                 _modelState.value =
-                    TranslationModelState(ready = false, error = "モデルの取得状態を確認できませんでした。")
+                    TranslationModelState(
+                        ready = false,
+                        error = UiText(R.string.error_model_status),
+                    )
             }
         }
         viewModelScope.launch {
             settingsRepository.settings
                 .catch {
-                    _state.update { it.copy(error = "設定を読み込めませんでした。アプリを再起動してください。") }
+                    _state.update { it.copy(error = UiText(R.string.error_settings_load)) }
                 }
                 .collect { next ->
                     val sourcesChanged = _settings.value?.sources != next.sources
@@ -77,7 +82,7 @@ constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                _state.update { it.copy(error = "取得元の設定を保存できませんでした。") }
+                _state.update { it.copy(error = UiText(R.string.error_source_save)) }
             }
         }
     }
@@ -89,7 +94,7 @@ constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                _state.update { it.copy(error = "タグの設定を保存できませんでした。") }
+                _state.update { it.copy(error = UiText(R.string.error_tag_save)) }
             }
         }
     }
@@ -107,7 +112,7 @@ constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                _state.update { it.copy(error = "表示順を保存できませんでした。") }
+                _state.update { it.copy(error = UiText(R.string.error_order_save)) }
             }
         }
     }
@@ -131,7 +136,7 @@ constructor(
                 _modelState.value =
                     TranslationModelState(
                         ready = false,
-                        error = "モデルを取得できませんでした。通信と空き容量を確認して再試行してください。",
+                        error = UiText(R.string.error_model_download),
                     )
             }
         }
@@ -157,7 +162,7 @@ constructor(
                     it +
                         (article.id to
                             ArticleTranslation(
-                                error = "翻訳できませんでした。ネットワークと空き容量を確認し、再試行してください。",
+                                error = UiText(R.string.error_translate),
                             ))
                 }
             }
@@ -204,7 +209,7 @@ constructor(
                         result.failedSources
                             .takeIf { it.isNotEmpty() }
                             ?.let {
-                                "取得できませんでした：${it.joinToString()}。再試行してください。"
+                                UiText(R.string.error_feed_fetch, listOf(it.joinToString()))
                             },
                 )
             }
@@ -218,7 +223,7 @@ constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                _state.update { it.copy(error = "保存状態を変更できませんでした。") }
+                _state.update { it.copy(error = UiText(R.string.error_saved_change)) }
             }
         }
     }

@@ -18,6 +18,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -100,7 +101,11 @@ fun NewsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(if (selectedTab == 0) "TechFeed" else "保存済み", fontWeight = FontWeight.Bold)
+                    Text(
+                        if (selectedTab == 0) stringResource(R.string.app_name)
+                        else stringResource(R.string.saved_title),
+                        fontWeight = FontWeight.Bold,
+                    )
                 },
                 actions = {
                     IconButton(
@@ -115,14 +120,22 @@ fun NewsScreen(
                                 if (selectedTab == 0) R.drawable.ic_bookmark
                                 else R.drawable.ic_news,
                             ),
-                            contentDescription = if (selectedTab == 0) "保存済み記事" else "ニュース一覧",
+                            contentDescription =
+                                if (selectedTab == 0) stringResource(R.string.saved_articles)
+                                else stringResource(R.string.news_list),
                         )
                     }
                     IconButton(onClick = refresh, enabled = !state.loading) {
-                        Icon(painterResource(R.drawable.ic_refresh), contentDescription = "ニュースを更新")
+                        Icon(
+                            painterResource(R.drawable.ic_refresh),
+                            contentDescription = stringResource(R.string.refresh_news),
+                        )
                     }
                     IconButton(onClick = openSettings) {
-                        Icon(painterResource(R.drawable.ic_settings), contentDescription = "設定")
+                        Icon(
+                            painterResource(R.drawable.ic_settings),
+                            contentDescription = stringResource(R.string.settings),
+                        )
                     }
                 },
             )
@@ -132,7 +145,7 @@ fun NewsScreen(
             if (state.loading) LinearProgressIndicator(Modifier.fillMaxWidth())
             state.error?.let {
                 Text(
-                    it,
+                    it.resolve(),
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp),
                 )
@@ -143,8 +156,16 @@ fun NewsScreen(
                 exit = shrinkVertically(),
             ) {
                 Column(Modifier.testTag("news_filters")) {
-                    ArticleFilterRow("取得元", sources, activeSource) { selectedSource = it }
-                    ArticleFilterRow("タグ", categories, activeTag) { category = it }
+                    ArticleFilterRow(
+                        stringResource(R.string.filter_source),
+                        sources,
+                        activeSource,
+                    ) {
+                        selectedSource = it
+                    }
+                    ArticleFilterRow(stringResource(R.string.filter_tag), categories, activeTag) {
+                        category = it
+                    }
                 }
             }
             if (visible.isEmpty()) {
@@ -153,13 +174,15 @@ fun NewsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        if (state.loading) "読み込み中…" else "記事がありません",
+                        if (state.loading) stringResource(R.string.loading)
+                        else stringResource(R.string.no_articles),
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        if (selectedTab == 1) "ニュース一覧の「保存」で記事を追加できます。"
-                        else if (settings.sources.isEmpty()) "設定で取得するサイトを選んでください。"
-                        else "「更新」で再取得するか、別のタグを選んでください。",
+                        if (selectedTab == 1) stringResource(R.string.empty_saved_hint)
+                        else if (settings.sources.isEmpty())
+                            stringResource(R.string.empty_sources_hint)
+                        else stringResource(R.string.empty_news_hint),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
@@ -175,13 +198,14 @@ fun NewsScreen(
                 ) {
                     items(visible, key = { it.id }) { article ->
                         ArticleCard(
-                            article,
-                            settings.tagOrder.filter {
-                                it in settings.visibleTags && it in articleTags(article)
-                            },
-                            article.id in savedIds,
-                            { selectedArticleId = article.id },
-                            { toggleSaved(article) },
+                            article = article,
+                            tags =
+                                settings.tagOrder.filter {
+                                    it in settings.visibleTags && it in articleTags(article)
+                                },
+                            saved = article.id in savedIds,
+                            openArticle = { selectedArticleId = article.id },
+                            toggleSaved = { toggleSaved(article) },
                         )
                     }
                 }
@@ -190,12 +214,12 @@ fun NewsScreen(
     }
     if (selectedArticle != null) {
         ArticleDetailDialog(
-            selectedArticle,
-            translations[selectedArticle.id] ?: ArticleTranslation(),
-            modelState,
-            { downloadModel(selectedArticle) },
-            { translate(selectedArticle) },
-            { selectedArticleId = null },
+            article = selectedArticle,
+            translation = translations[selectedArticle.id] ?: ArticleTranslation(),
+            modelState = modelState,
+            downloadModel = { downloadModel(selectedArticle) },
+            translate = { translate(selectedArticle) },
+            dismiss = { selectedArticleId = null },
         )
     }
 }

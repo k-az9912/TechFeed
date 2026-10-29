@@ -6,9 +6,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.techfeed.R
 import com.example.techfeed.core.model.Article
+import com.example.techfeed.core.time.formatArticleTime
 
 @Composable
 fun ArticleCard(
@@ -24,7 +27,11 @@ fun ArticleCard(
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                "${article.source}  ·  ${article.time}",
+                stringResource(
+                    R.string.article_metadata,
+                    article.source,
+                    formatArticleTime(article.time) ?: stringResource(R.string.date_unknown),
+                ),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -44,7 +51,12 @@ fun ArticleCard(
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(top = 12.dp),
                 )
-                TextButton(onClick = { toggleSaved() }) { Text(if (saved) "★ 保存済み" else "☆ 保存") }
+                TextButton(onClick = { toggleSaved() }) {
+                    Text(
+                        if (saved) stringResource(R.string.article_saved)
+                        else stringResource(R.string.save_article),
+                    )
+                }
             }
         }
     }

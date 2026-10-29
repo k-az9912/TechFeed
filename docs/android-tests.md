@@ -6,6 +6,7 @@
 
 | テストクラス | 対象 | 件数 |
 | --- | --- | ---: |
+| ArticlePresentationTest | 日付表示・不明日時・エラーのリソース引数 | 3 |
 | ArticleDaoTest | 保存・削除の観測、DB 再オープン、保存切り替え | 3 |
 | SettingsRepositoryTest | 取得元・タグ・表示順・全無効設定の永続化 | 3 |
 | TechFeedScreensTest | 設定画面往復後の選択・スクロール保持、Android の戻る操作 | 2 |
@@ -40,7 +41,7 @@ Android Studio では `androidTest` のクラス横から実行。
 
 | 検証 | 結果 |
 | --- | --- |
-| AndroidTest（Medium Phone API 37） | 18件成功、失敗・エラー・スキップ0件 |
-| JUnit | 26件成功、失敗・エラー・スキップ0件 |
+| AndroidTest（Medium Phone API 37） | 21件成功、失敗・エラー・スキップ0件 |
+| JUnit | 30件成功、失敗・エラー・スキップ0件 |
 | assembleDebug | 成功 |
-| lintDebug | エラー0件、警告17件 |
+| lintDebug | エラー0件、警告16件 |

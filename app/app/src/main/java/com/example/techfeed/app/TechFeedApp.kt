@@ -35,15 +35,15 @@ fun TechFeedApp(model: NewsViewModel = hiltViewModel()) {
         },
         settings = { back ->
             NewsSettingsScreen(
-                settings,
-                state.error,
-                model::setSource,
-                model::setTag,
-                model::moveSource,
-                model::moveTag,
-                modelState,
-                { model.downloadModel() },
-                back,
+                settings = settings,
+                error = state.error,
+                setSource = model::setSource,
+                setTag = model::setTag,
+                moveSource = model::moveSource,
+                moveTag = model::moveTag,
+                modelState = modelState,
+                downloadModel = { model.downloadModel() },
+                back = back,
             )
         },
     )

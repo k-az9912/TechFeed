@@ -11,7 +11,7 @@
 | feature/news/ui | 一覧・詳細・画面部品、ViewModel、表示状態 |
 | feature/settings | DataStore、設定値・表示順、設定画面、DI |
 | feature/translation | ML Kit、翻訳状態、モデル取得確認、帰属表示、DI |
-| core | 共有モデル、配信元、タグ、Room、URL 検査、外部リンク、DB の DI |
+| core | 共有モデル、配信元、タグ、Room、URL 検査、日時変換、外部リンク、表示文言、DB の DI |
 
 ## 依存関係
 
@@ -40,3 +40,10 @@ DB スキーマ変更時は migration を追加。
 - `src/androidTest/`：Room・DataStore・Compose／Espresso。[対象と実行方法](android-tests.md)。
 
 いずれも対象コードに対応するパッケージに配置。
+
+## 表示と書式
+
+- 表示文言：`res/values/strings.xml`。ViewModel のエラーは `UiText` で保持し、画面側で解決。
+- 配信元名・話題タグは現行の識別値を維持。英語 UI は未提供。
+- ランチャー：独自ベクターの adaptive icon。API 33 以上は単色レイヤー付き。
+- Kotlin／Gradle Kotlin DSL：ktfmt 0.65 の Kotlinlang スタイル。

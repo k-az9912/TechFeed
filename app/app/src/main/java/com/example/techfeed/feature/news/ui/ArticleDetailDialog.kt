@@ -11,10 +11,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.techfeed.R
 import com.example.techfeed.core.feed.isEnglishArticle
 import com.example.techfeed.core.model.Article
+import com.example.techfeed.core.time.formatArticleTime
 import com.example.techfeed.core.ui.openExternalLink
 import com.example.techfeed.feature.translation.model.ArticleTranslation
 import com.example.techfeed.feature.translation.model.TranslationModelState
@@ -45,7 +47,13 @@ fun ArticleDetailDialog(
                 Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text("${article.source} · ${article.time}")
+                Text(
+                    stringResource(
+                        R.string.article_metadata,
+                        article.source,
+                        formatArticleTime(article.time) ?: stringResource(R.string.date_unknown),
+                    ),
+                )
                 Text(if (translated) translation.summary.orEmpty() else article.summary)
                 if (isEnglishArticle(article)) {
                     TextButton(
@@ -66,31 +74,43 @@ fun ArticleDetailDialog(
                     ) {
                         Text(
                             when {
-                                modelState.downloading -> "モデル取得中…"
-                                translation.loading -> "翻訳中…"
-                                translated -> "原文を表示"
-                                translation.title != null -> "日本語訳を表示"
-                                else -> "Google で翻訳"
+                                modelState.downloading -> stringResource(R.string.model_downloading)
+                                translation.loading -> stringResource(R.string.translating)
+                                translated -> stringResource(R.string.show_original)
+                                translation.title != null ->
+                                    stringResource(R.string.show_translation)
+                                else -> stringResource(R.string.translate_google)
                             },
                         )
                     }
-                    modelState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                    translation.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                    modelState.error?.let {
+                        Text(it.resolve(), color = MaterialTheme.colorScheme.error)
+                    }
+                    translation.error?.let {
+                        Text(it.resolve(), color = MaterialTheme.colorScheme.error)
+                    }
                     if (translated) {
-                        Text("機械翻訳です。内容は原文でも確認してください。", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(R.string.translation_notice),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                         Image(
                             painterResource(R.drawable.google_translate_attribution),
-                            contentDescription = "powered by Google Translate",
+                            contentDescription = stringResource(R.string.translation_attribution),
                             modifier =
                                 Modifier.clickable { openLink("https://translate.google.com/") },
                         )
                     }
                 }
-                if (linkError) Text("リンクを開けるアプリがありません。")
+                if (linkError) Text(stringResource(R.string.link_unavailable))
             }
         },
-        confirmButton = { TextButton(onClick = { openLink(article.url) }) { Text("元記事を開く") } },
-        dismissButton = { TextButton(onClick = dismiss) { Text("閉じる") } },
+        confirmButton = {
+            TextButton(onClick = { openLink(article.url) }) {
+                Text(stringResource(R.string.open_article))
+            }
+        },
+        dismissButton = { TextButton(onClick = dismiss) { Text(stringResource(R.string.close)) } },
     )
     if (confirmDownload) {
         ModelDownloadDialog(

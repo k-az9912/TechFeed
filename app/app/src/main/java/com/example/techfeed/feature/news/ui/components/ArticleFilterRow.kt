@@ -7,7 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.techfeed.R
 
 @Composable
 fun ArticleFilterRow(
@@ -30,7 +32,7 @@ fun ArticleFilterRow(
                     modifier = Modifier.testTag("filter:$label:$option"),
                     selected = selected == option,
                     onClick = { select(option) },
-                    label = { Text(option) },
+                    label = { Text(if (option == "すべて") stringResource(R.string.all) else option) },
                 )
             }
         }

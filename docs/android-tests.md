@@ -94,3 +94,21 @@ Android Studio では `androidTest` のクラス横から実行。
 - 更新失敗時の一覧保持と再取得、ViewModel 破棄時の翻訳キャンセル・クライアント解放。
 
 ViewModel と SettingsRepository は本番実装。NewsRepository・TranslationService と DataStore は制御可能なテスト実装。ML Kit・HTTP・永続化自体の検証は含まない。
+
+## API 26 の検証状況
+
+2026-10-30。`TechFeed_API_26`（Android 8.0.0、ARM64）で実施。
+
+| 確認 | 結果 |
+| --- | --- |
+| アプリ／AndroidTest APK の最低 API | `aapt2 dump badging` で両方 `minSdkVersion:'26'` |
+| lintDebug | 成功。エラー0件、警告16件 |
+| AndroidTest | 32件成功、失敗・エラー・スキップ0件 |
+| 通常アプリの起動・記事取得 | MainActivity の起動に成功。実フィードの記事を一覧表示 |
+| 保存 | 実記事を保存し、プロセス強制終了後の再起動でも保存済み一覧に復元 |
+| 設定 | 取得元を無効化し、プロセス強制終了後の再起動でも保持。確認後に有効へ復元し、再起動後の復元も確認 |
+| 翻訳 | 実モデル取得、Android Developers の実記事翻訳、原文／日本語訳の切り替えに成功 |
+
+AndroidTest は Room・DataStore・Compose／Espresso の対象を API 26 で通過した。通常アプリでは Hilt → ViewModel → HTTP → Room／DataStore／ML Kit の起動・取得・保存・設定・翻訳経路を確認した。
+
+確認用の保存記事はすべて削除し、変更した取得元設定は有効へ復元。取得した翻訳モデルは保持。タグ設定の通常アプリでの手動変更は未実施だが、API 26 の AndroidTest で永続化を確認している。API 37 の結果と混同しない。

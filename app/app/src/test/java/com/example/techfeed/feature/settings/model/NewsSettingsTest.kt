@@ -7,7 +7,8 @@ import org.junit.Test
 
 class NewsSettingsTest {
 
-    @Test fun defaultsIncludeAllSourcesAndTags() {
+    @Test
+    fun defaultsIncludeAllSourcesAndTags() {
         val settings = NewsSettings()
         assertEquals(feedSources.map { it.name }.toSet(), settings.sources)
         assertEquals(availableTags.toSet(), settings.visibleTags)

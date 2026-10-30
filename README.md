@@ -2,6 +2,14 @@
 
 IT ニュースの取得・絞り込み・保存・翻訳に対応した Android アプリ。
 
+## 画面
+
+| ニュース一覧 | 日本語翻訳 | 取得元・タグの設定 |
+| --- | --- | --- |
+| <img src="docs/images/news.png" width="240" alt="Publickeyの記事一覧と取得元・タグによる絞り込み" /> | <img src="docs/images/translation.png" width="240" alt="英語記事の日本語訳と原文切り替え" /> | <img src="docs/images/settings.png" width="240" alt="取得元と話題タグの表示切り替え・並べ替え" /> |
+
+Android エミュレーター（API 37）で撮影。
+
 ## 機能
 
 - 9フィードから RSS／Atom を取得
@@ -11,6 +19,15 @@ IT ニュースの取得・絞り込み・保存・翻訳に対応した Android
 - 英語記事の日本語翻訳（ML Kit、端末内処理）
 
 配信元：Android Developers、Publickey、Qiita、ITmedia NEWS、Impress Watch、Zenn、Ars Technica、IPA お知らせ、IPA セキュリティ。
+
+## 技術構成
+
+| 対象 | 使用技術 |
+| --- | --- |
+| 画面 | Kotlin、Jetpack Compose、Material 3 |
+| 状態管理・DI | ViewModel、StateFlow、Coroutines、Hilt |
+| 保存・設定 | Room、DataStore |
+| 翻訳・テスト | ML Kit、JUnit、Compose Test、Espresso |
 
 ## 起動
 
@@ -26,6 +43,8 @@ IT ニュースの取得・絞り込み・保存・翻訳に対応した Android
 ./scripts/check-language.sh  # lint・JUnit・debug ビルド
 ./scripts/check-android.sh   # AndroidTest（端末接続が必要）
 ```
+
+GitHub Actions：PR・develop／main への push で lint・JUnit・debug ビルドを実行。検証レポートを7日間保存。
 
 コミット前フック：pre-commit と Gitleaks の導入後、`pre-commit install`。GitHub Actions でも履歴を検査。
 

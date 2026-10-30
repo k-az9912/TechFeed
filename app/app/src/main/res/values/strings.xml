@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">TechFeed</string>
+    <string name="all">すべて</string>
+    <string name="saved_title">保存済み</string>
+    <string name="saved_articles">保存済み記事</string>
+    <string name="news_list">ニュース一覧</string>
+    <string name="refresh_news">ニュースを更新</string>
+    <string name="settings">設定</string>
+    <string name="filter_source">取得元</string>
+    <string name="filter_tag">タグ</string>
+    <string name="loading">読み込み中…</string>
+    <string name="no_articles">記事がありません</string>
+    <string name="empty_saved_hint">ニュース一覧の「保存」で記事を追加できます。</string>
+    <string name="empty_sources_hint">設定で取得するサイトを選んでください。</string>
+    <string name="empty_news_hint">「更新」で再取得するか、別のタグを選んでください。</string>
+    <string name="save_article">☆ 保存</string>
+    <string name="article_saved">★ 保存済み</string>
+    <string name="back">戻る</string>
+    <string name="close">閉じる</string>
+    <string name="open_article">元記事を開く</string>
+    <string name="model_downloading">モデル取得中…</string>
+    <string name="translating">翻訳中…</string>
+    <string name="show_original">原文を表示</string>
+    <string name="show_translation">日本語訳を表示</string>
+    <string name="translate_google">Google で翻訳</string>
+    <string name="translation_notice">機械翻訳です。内容は原文でも確認してください。</string>
+    <string name="translation_attribution" translatable="false">powered by Google Translate</string>
+    <string name="link_unavailable">リンクを開けるアプリがありません。</string>
+    <string name="settings_loading">設定を読み込み中…</string>
+    <string name="settings_sources_title">取得するサイト・表示順</string>
+    <string name="settings_sources_hint">上下ボタンで取得元の表示順を変更できます。変更は自動保存します。取得を止めても保存済み記事は残ります。</string>
+    <string name="settings_tags_title">話題タグ・表示順</string>
+    <string name="settings_tags_hint">上下ボタンで並べ替え、スイッチで表示を切り替えます。タグを非表示にしても記事自体は消えません。</string>
+    <string name="translation_model">翻訳モデル</string>
+    <string name="downloading">ダウンロード中…</string>
+    <string name="model_ready">英語→日本語：取得済み</string>
+    <string name="model_missing">英語→日本語：未取得</string>
+    <string name="model_checking">取得状態を確認中…</string>
+    <string name="download_model">翻訳モデルをダウンロード</string>
+    <string name="translation_explanation">Google Translate の技術を使用した ML Kit の端末内翻訳です。英語記事のタイトルと概要を日本語に翻訳します。翻訳は不正確な場合があるため、原文も確認してください。</string>
+    <string name="translation_about">Google Translate の翻訳について</string>
+    <string name="download_model_message">英語から日本語への端末内翻訳に必要なモデルを取得します。モバイル通信を使用する場合があります。Wi-Fi 環境での取得をおすすめします。取得後はこの確認を表示せず翻訳できます。</string>
+    <string name="download">ダウンロード</string>
+    <string name="cancel">キャンセル</string>
+    <string name="move_before">%1$s を前へ</string>
+    <string name="move_after">%1$s を後ろへ</string>
+    <string name="article_metadata">%1$s · %2$s</string>
+    <string name="date_unknown">日時不明</string>
+    <string name="error_saved_load">保存済み記事を読み込めませんでした。</string>
+    <string name="error_model_status">モデルの取得状態を確認できませんでした。</string>
+    <string name="error_settings_load">設定を読み込めませんでした。アプリを再起動してください。</string>
+    <string name="error_source_save">取得元の設定を保存できませんでした。</string>
+    <string name="error_tag_save">タグの設定を保存できませんでした。</string>
+    <string name="error_order_save">表示順を保存できませんでした。</string>
+    <string name="error_model_download">モデルを取得できませんでした。通信と空き容量を確認して再試行してください。</string>
+    <string name="error_translate">翻訳できませんでした。ネットワークと空き容量を確認し、再試行してください。</string>
+    <string name="error_saved_change">保存状態を変更できませんでした。</string>
+    <string name="error_feed_fetch">取得できませんでした：%1$s。再試行してください。</string>
+    <string name="translation_disclaimer" translatable="false">THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</string>
+</resources>

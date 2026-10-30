@@ -12,17 +12,18 @@ ViewModel は Repository・設定・翻訳サービスをコンストラクタ�
 | NewsViewModel | `@HiltViewModel`、`@Inject constructor` |
 | StorageModule | Room DB・DAO の提供 |
 | SettingsModule | 本番 DataStore の提供 |
-| TranslationModule | ML Kit Translator の提供 |
+| NewsModule | NewsRepository → DefaultNewsRepository の接続 |
+| TranslationModule | TranslationService → ArticleTranslator、ML Kit Translator の提供 |
 
-NewsRepository → ArticleDao・FeedClient → FeedParser。
+NewsRepository → DefaultNewsRepository → ArticleDao・FeedClient → FeedParser。
 SettingsRepository → DataStore。
-ArticleTranslator → ML Kit Translator。
+TranslationService → ArticleTranslator → ML Kit Translator。
 
 ## スコープ
 
 | 指定 | 対象 | 共有範囲 |
 | --- | --- | --- |
-| `@Singleton` | NewsDatabase、NewsRepository、SettingsRepository | SingletonComponent |
+| `@Singleton` | NewsDatabase、DefaultNewsRepository、SettingsRepository | SingletonComponent |
 | `@ViewModelScoped` | ArticleTranslator、ML Kit Translator | ViewModelComponent |
 | スコープなし | FeedClient、FeedParser、DAO 提供関数 | 同一インスタンスの保証なし |
 

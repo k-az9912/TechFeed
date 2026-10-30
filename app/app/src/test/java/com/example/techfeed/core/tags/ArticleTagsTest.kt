@@ -9,24 +9,29 @@ class ArticleTagsTest {
     private fun article(source: String = "Test", title: String = "", summary: String = "") =
         Article("https://example.com/a", source, "ITニュース", title, summary, "")
 
-    @Test fun securityAndAiCanCoexistWithSourceCategory() {
+    @Test
+    fun securityAndAiCanCoexistWithSourceCategory() {
         val tags = articleTags(article(title = "AI サービスの脆弱性 CVE-2026-1234"))
         assertTrue(tags.containsAll(setOf("ITニュース", "AI", "セキュリティ")))
     }
 
-    @Test fun englishSummaryCanAddSecurityTag() {
+    @Test
+    fun englishSummaryCanAddSecurityTag() {
         assertTrue("セキュリティ" in articleTags(article(summary = "A vulnerability allows data theft")))
     }
 
-    @Test fun ordinaryArticleDoesNotReceiveSecurityTag() {
+    @Test
+    fun ordinaryArticleDoesNotReceiveSecurityTag() {
         assertFalse("セキュリティ" in articleTags(article(title = "New laptop released")))
     }
 
-    @Test fun ipaSecuritySourceIsTaggedWithoutKeywords() {
+    @Test
+    fun ipaSecuritySourceIsTaggedWithoutKeywords() {
         assertTrue("セキュリティ" in articleTags(article(source = "IPA セキュリティ")))
     }
 
-    @Test fun sourceNamesAreNotTopicTags() {
+    @Test
+    fun sourceNamesAreNotTopicTags() {
         assertFalse(availableTags.any { it in availableSources })
         assertFalse("Qiitaトレンド" in availableTags)
         assertFalse("海外IT" in availableTags)

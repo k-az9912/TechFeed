@@ -11,7 +11,7 @@
 | feature/news/ui | 一覧・詳細・画面部品、ViewModel、表示状態 |
 | feature/settings | DataStore、設定値・表示順、設定画面、DI |
 | feature/translation | ML Kit、翻訳状態、モデル取得確認、帰属表示、DI |
-| core | 共有モデル、配信元、タグ、Room、URL 検査、外部リンク、DB の DI |
+| core | 共有モデル、配信元、タグ、Room、URL 検査、日時変換、外部リンク、表示文言、DB の DI |
 
 ## 依存関係
 
@@ -19,6 +19,9 @@
 - `core` は `feature`・`app` に依存しない。
 - ニュース固有の解析・並べ替えは `feature/news` に配置。
 - `NewsViewModel` がニュース・設定・翻訳を調整。
+- ニュースは `NewsRepository`、翻訳は `TranslationService` を境界とし、Hilt で本番実装に接続。ViewModel テストは遅延・失敗を制御できる実装を使用。
+- `TechFeedScreens` が画面を切り替え、`SaveableStateHolder` で各画面の状態を保持。
+- 更新結果の判定は `feature/news/domain/FeedRefreshResult.kt` に分離。全失敗時のみ前回一覧を使用。
 - インスタンスの生成・共有範囲は [Hilt 構成](hilt-di.md) に集約。
 
 ## 永続データ
@@ -34,7 +37,14 @@ DB スキーマ変更時は migration を追加。
 
 ## テスト配置
 
-- `src/test/`：解析・並び替え・絞り込み・URL・タグ・設定値の JUnit テスト。
+- `src/test/`：解析・並び替え・絞り込み・URL・タグ・設定値、ViewModel の状態遷移の JUnit テスト。
 - `src/androidTest/`：Room・DataStore・Compose／Espresso。[対象と実行方法](android-tests.md)。
 
 いずれも対象コードに対応するパッケージに配置。
+
+## 表示と書式
+
+- 表示文言：`res/values/strings.xml`。ViewModel のエラーは `UiText` で保持し、画面側で解決。
+- 配信元名・話題タグは現行の識別値を維持。英語 UI は未提供。
+- ランチャー：独自ベクターの adaptive icon。API 33 以上は単色レイヤー付き。
+- Kotlin／Gradle Kotlin DSL：ktfmt 0.65 の Kotlinlang スタイル。

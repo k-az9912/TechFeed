@@ -6,7 +6,8 @@ import org.junit.Test
 
 class ArticleFiltersTest {
 
-    @Test fun sourceAndTopicFiltersAreCombined() {
+    @Test
+    fun sourceAndTopicFiltersAreCombined() {
         val securityA = Article("1", "A", "ITニュース", "脆弱性について", "", "")
         val securityB = securityA.copy(id = "2", source = "B")
         val normalA = securityA.copy(id = "3", title = "New laptop")

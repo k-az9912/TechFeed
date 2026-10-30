@@ -16,12 +16,13 @@ import org.junit.runner.RunWith
 class NewsScreenTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun sourceAndTagFiltersNarrowTheArticleList() {
+    @Test
+    fun sourceAndTagFiltersNarrowTheArticleList() {
         compose.setContent {
             MaterialTheme {
                 NewsScreen(
                     state = NewsState(listOf(publickeySecurity, publickeyAi, itmediaSecurity)),
-                    settings = uiSettings
+                    settings = uiSettings,
                 )
             }
         }
@@ -33,7 +34,8 @@ class NewsScreenTest {
         compose.onNodeWithText(itmediaSecurity.title).assertDoesNotExist()
     }
 
-    @Test fun saveButtonUpdatesSavedListAndCanRemoveArticle() {
+    @Test
+    fun saveButtonUpdatesSavedListAndCanRemoveArticle() {
         compose.setContent {
             var saved by remember { mutableStateOf(emptyList<Article>()) }
             MaterialTheme {
@@ -42,8 +44,9 @@ class NewsScreenTest {
                     saved = saved,
                     settings = uiSettings,
                     toggleSaved = { article ->
-                        saved = if (saved.any { it.id == article.id }) emptyList() else listOf(article)
-                    }
+                        saved =
+                            if (saved.any { it.id == article.id }) emptyList() else listOf(article)
+                    },
                 )
             }
         }
@@ -56,7 +59,8 @@ class NewsScreenTest {
         compose.onNodeWithText(publickeySecurity.title).assertDoesNotExist()
     }
 
-    @Test fun espressoBackClosesArticleDialogWithoutLeavingList() {
+    @Test
+    fun espressoBackClosesArticleDialogWithoutLeavingList() {
         compose.setContent {
             MaterialTheme {
                 NewsScreen(state = NewsState(listOf(publickeySecurity)), settings = uiSettings)
@@ -66,16 +70,20 @@ class NewsScreenTest {
         compose.onNode(isDialog()).assertIsDisplayed()
 
         // Espresso sends the Android Back action; Compose assertions verify the result.
-        Espresso.pressBack()
+        Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.isRoot())
+            .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog())
+            .perform(androidx.test.espresso.action.ViewActions.pressBack())
         compose.waitForIdle()
         compose.onNode(isDialog()).assertDoesNotExist()
         compose.onNodeWithText(publickeySecurity.title).assertIsDisplayed()
     }
 
-    @Test fun scrollingHidesFiltersAndReverseScrollShowsThem() {
-        val articles = (1..30).map {
-            publickeySecurity.copy(id = "https://example.com/$it", title = "テスト記事 $it")
-        }
+    @Test
+    fun scrollingHidesFiltersAndReverseScrollShowsThem() {
+        val articles =
+            (1..30).map {
+                publickeySecurity.copy(id = "https://example.com/$it", title = "テスト記事 $it")
+            }
         compose.setContent {
             MaterialTheme { NewsScreen(state = NewsState(articles), settings = uiSettings) }
         }

@@ -8,7 +8,8 @@ class FeedSourcesTest {
     private fun article(source: String = "Test", title: String = "", summary: String = "") =
         Article("https://example.com/a", source, "ITニュース", title, summary, "")
 
-    @Test fun translationButtonTargetsEnglishSourcesOnly() {
+    @Test
+    fun translationButtonTargetsEnglishSourcesOnly() {
         assertTrue(isEnglishArticle(article(source = "Ars Technica")))
         assertTrue(isEnglishArticle(article(source = "Android Developers")))
         assertFalse(isEnglishArticle(article(source = "IPA お知らせ")))

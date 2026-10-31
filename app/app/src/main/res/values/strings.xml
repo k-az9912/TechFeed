@@ -28,10 +28,26 @@
     <string name="translation_attribution" translatable="false">powered by Google Translate</string>
     <string name="link_unavailable">リンクを開けるアプリがありません。</string>
     <string name="settings_loading">設定を読み込み中…</string>
+    <string name="settings_add_feed_title">RSS／Atomフィードを追加</string>
+    <string name="settings_add_feed_hint">利用条件を確認したニュースサイトの、HTTPSのRSS／AtomフィードURLを入力します。登録前に形式を確認します。</string>
+    <string name="settings_feed_url">フィードURL</string>
+    <string name="add_feed">確認して追加</string>
+    <string name="checking_feed">確認中…</string>
+    <string name="custom_feed_added">%1$s を追加しました。</string>
+    <string name="remove">削除</string>
+    <string name="remove_feed_title">配信元を削除しますか？</string>
+    <string name="remove_feed_message">%1$s の登録を削除します。保存済み記事は削除されません。</string>
     <string name="settings_sources_title">取得するサイト・表示順</string>
     <string name="settings_sources_hint">上下ボタンで取得元の表示順を変更できます。変更は自動保存します。取得を止めても保存済み記事は残ります。</string>
     <string name="settings_tags_title">話題タグ・表示順</string>
-    <string name="settings_tags_hint">上下ボタンで並べ替え、スイッチで表示を切り替えます。タグを非表示にしても記事自体は消えません。</string>
+    <string name="settings_tags_hint">標準タグに加えて、タイトルと概要から判定するタグを追加できます。上下ボタンで並べ替え、スイッチで表示を切り替えます。</string>
+    <string name="settings_tag_name">タグ名</string>
+    <string name="settings_tag_keywords">判定キーワード</string>
+    <string name="settings_tag_keywords_hint">カンマ、読点または改行で区切ります。大文字・小文字は区別しません。</string>
+    <string name="add_tag">タグを追加</string>
+    <string name="custom_tag_added">%1$s を追加しました。</string>
+    <string name="remove_tag_title">タグを削除しますか？</string>
+    <string name="remove_tag_message">%1$s の設定を削除します。記事や配信元は削除されません。</string>
     <string name="translation_model">翻訳モデル</string>
     <string name="downloading">ダウンロード中…</string>
     <string name="model_ready">英語→日本語：取得済み</string>
@@ -57,5 +73,13 @@
     <string name="error_translate">翻訳できませんでした。ネットワークと空き容量を確認し、再試行してください。</string>
     <string name="error_saved_change">保存状態を変更できませんでした。</string>
     <string name="error_feed_fetch">取得できませんでした：%1$s。再試行してください。</string>
+    <string name="error_custom_feed_url">ユーザー情報を含まないHTTPSのフィードURLを入力してください。</string>
+    <string name="error_custom_feed_duplicate">このフィードはすでに登録されています。</string>
+    <string name="error_custom_feed_register">RSS／Atomフィードを確認できませんでした。URL、通信状態、配信形式を確認してください。</string>
+    <string name="error_custom_feed_remove">配信元を削除できませんでした。</string>
+    <string name="error_custom_tag_input">タグ名と1つ以上の判定キーワードを入力してください。</string>
+    <string name="error_custom_tag_duplicate">同じ名前のタグがすでにあります。</string>
+    <string name="error_custom_tag_save">タグを保存できませんでした。</string>
+    <string name="error_custom_tag_remove">タグを削除できませんでした。</string>
     <string name="translation_disclaimer" translatable="false">THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</string>
 </resources>

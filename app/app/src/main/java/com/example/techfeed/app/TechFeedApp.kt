@@ -18,6 +18,8 @@ fun TechFeedApp(model: NewsViewModel = hiltViewModel()) {
     val settings by model.settings.collectAsStateWithLifecycle()
     val translations by model.translations.collectAsStateWithLifecycle()
     val modelState by model.modelState.collectAsStateWithLifecycle()
+    val customFeedState by model.customFeedState.collectAsStateWithLifecycle()
+    val customTagState by model.customTagState.collectAsStateWithLifecycle()
     TechFeedScreens(
         news = { openSettings ->
             NewsScreen(
@@ -41,6 +43,12 @@ fun TechFeedApp(model: NewsViewModel = hiltViewModel()) {
                 setTag = model::setTag,
                 moveSource = model::moveSource,
                 moveTag = model::moveTag,
+                customFeedState = customFeedState,
+                addCustomFeed = model::addCustomFeed,
+                removeCustomFeed = model::removeCustomFeed,
+                customTagState = customTagState,
+                addCustomTag = model::addCustomTag,
+                removeCustomTag = model::removeCustomTag,
                 modelState = modelState,
                 downloadModel = { model.downloadModel() },
                 back = back,

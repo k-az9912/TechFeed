@@ -11,4 +11,11 @@ class ArticleUrlsTest {
         assertNull(safeArticleUrl("https://user:password@example.com/"))
         assertEquals("https://example.com/a", safeArticleUrl("https://example.com/a"))
     }
+
+    @Test
+    fun feedUrlsRequireHttpsAndNoCredentials() {
+        assertEquals("https://example.com/feed.xml", safeFeedUrl("https://example.com/feed.xml"))
+        assertNull(safeFeedUrl("http://example.com/feed.xml"))
+        assertNull(safeFeedUrl("https://user:password@example.com/feed.xml"))
+    }
 }

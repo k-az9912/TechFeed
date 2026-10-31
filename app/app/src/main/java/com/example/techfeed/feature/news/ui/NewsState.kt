@@ -8,3 +8,14 @@ data class NewsState(
     val loading: Boolean = false,
     val error: UiText? = null,
 )
+
+data class CustomFeedState(
+    val adding: Boolean = false,
+    val error: UiText? = null,
+    val addedSource: String? = null,
+)
+
+data class CustomTagState(
+    val error: UiText? = null,
+    val addedTag: String? = null,
+)

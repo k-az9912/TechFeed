@@ -99,7 +99,7 @@ class NewsViewModelTest {
             vm.translate(english)
             vm.downloadModel()
             runCurrent()
-            vm.translate(english.copy(source = "Publickey"))
+            vm.translate(english.copy(source = "Qiita"))
             runCurrent()
             assertEquals(0, translator.translationCalls)
             assertTrue(vm.translations.value.isEmpty())
@@ -170,11 +170,11 @@ class NewsViewModelTest {
     @Test
     fun sourceChangeCancelsOldRefreshAndLateResponseCannotOverwriteNewArticles() =
         runTest(dispatcher) {
-            settings.enableOnly("Publickey")
+            settings.enableOnly("IPA お知らせ")
             val oldResponse = CompletableDeferred<List<Article>>()
             var oldCancelled = false
             repository.fetchAction = { source ->
-                if (source.name == "Publickey") {
+                if (source.name == "IPA お知らせ") {
                     try {
                         // Simulate an I/O call that still finishes after its caller is cancelled.
                         withContext(NonCancellable) { oldResponse.await() }
@@ -185,13 +185,13 @@ class NewsViewModelTest {
             }
             val vm = createViewModel()
             runCurrent()
-            assertEquals(listOf("Publickey"), repository.requests)
-            vm.setSource("Publickey", false)
-            vm.setSource("Ars Technica", true)
+            assertEquals(listOf("IPA お知らせ"), repository.requests)
+            vm.setSource("IPA お知らせ", false)
+            vm.setSource("Android Developers", true)
             runCurrent()
             assertEquals(listOf(fresh), vm.state.value.articles)
             assertFalse(vm.state.value.loading)
-            oldResponse.complete(listOf(english.copy(source = "Publickey", title = "古い応答")))
+            oldResponse.complete(listOf(english.copy(source = "IPA お知らせ", title = "古い応答")))
             runCurrent()
             assertTrue(oldCancelled)
             assertEquals(listOf(fresh), vm.state.value.articles)
@@ -201,7 +201,7 @@ class NewsViewModelTest {
     @Test
     fun repeatedRefreshCancelsPreviousRequest() =
         runTest(dispatcher) {
-            settings.enableOnly("Ars Technica")
+            settings.enableOnly("Android Developers")
             var cancelled = false
             var calls = 0
             repository.fetchAction = {
@@ -226,12 +226,12 @@ class NewsViewModelTest {
     @Test
     fun allSourcesDisabledClearsArticlesWithoutFetchingAgain() =
         runTest(dispatcher) {
-            settings.enableOnly("Ars Technica")
+            settings.enableOnly("Android Developers")
             repository.fetchAction = { listOf(fresh) }
             val vm = createViewModel()
             runCurrent()
             assertEquals(listOf(fresh), vm.state.value.articles)
-            vm.setSource("Ars Technica", false)
+            vm.setSource("Android Developers", false)
             runCurrent()
             assertTrue(vm.state.value.articles.isEmpty())
             assertFalse(vm.state.value.loading)
@@ -242,7 +242,7 @@ class NewsViewModelTest {
     @Test
     fun refreshFailureKeepsPreviousArticlesAndSuccessfulRetryClearsError() =
         runTest(dispatcher) {
-            settings.enableOnly("Ars Technica")
+            settings.enableOnly("Android Developers")
             repository.fetchAction = { listOf(english) }
             val vm = createViewModel()
             runCurrent()
@@ -257,6 +257,49 @@ class NewsViewModelTest {
             runCurrent()
             assertEquals(listOf(fresh), vm.state.value.articles)
             assertNull(vm.state.value.error)
+        }
+
+    @Test
+    fun customFeedRequiresHttpsAndIsAddedAfterInspection() =
+        runTest(dispatcher) {
+            val vm = createViewModel()
+            runCurrent()
+
+            vm.addCustomFeed("http://example.com/feed.xml")
+            assertEquals(R.string.error_custom_feed_url, vm.customFeedState.value.error?.resourceId)
+            assertEquals(0, repository.inspectionCalls)
+
+            vm.addCustomFeed("https://example.com/feed.xml")
+            assertTrue(vm.customFeedState.value.adding)
+            runCurrent()
+            assertEquals(1, repository.inspectionCalls)
+            assertEquals("Example News", vm.customFeedState.value.addedSource)
+            assertTrue(vm.settings.value?.feeds?.any { it.name == "Example News" } == true)
+        }
+
+    @Test
+    fun customTagValidatesInputAndStoresParsedKeywords() =
+        runTest(dispatcher) {
+            val vm = createViewModel()
+            runCurrent()
+
+            vm.addCustomTag("Compose", "")
+            assertEquals(
+                R.string.error_custom_tag_input,
+                vm.customTagState.value.error?.resourceId,
+            )
+
+            vm.addCustomTag("Compose", "Jetpack Compose、Kotlin\nAndroid UI")
+            runCurrent()
+            val tag = vm.settings.value?.tags?.single { it.name == "Compose" }
+            assertEquals(listOf("Jetpack Compose", "Kotlin", "Android UI"), tag?.keywords)
+            assertEquals("Compose", vm.customTagState.value.addedTag)
+
+            vm.addCustomTag("Compose", "duplicate")
+            assertEquals(
+                R.string.error_custom_tag_duplicate,
+                vm.customTagState.value.error?.resourceId,
+            )
         }
 
     @Test
@@ -300,10 +343,19 @@ class NewsViewModelTest {
         override val saved = MutableStateFlow<List<Article>>(emptyList())
         val requests = mutableListOf<String>()
         var fetchAction: suspend (FeedSource) -> List<Article> = { emptyList() }
+        var inspectAction: suspend (String) -> FeedSource = {
+            FeedSource("Example News", "ITニュース", it)
+        }
+        var inspectionCalls = 0
 
         override suspend fun fetch(source: FeedSource): List<Article> {
             requests += source.name
             return fetchAction(source)
+        }
+
+        override suspend fun inspectFeed(url: String): FeedSource {
+            inspectionCalls++
+            return inspectAction(url)
         }
 
         override suspend fun toggle(article: Article) {}
@@ -339,8 +391,8 @@ class NewsViewModelTest {
         private val english =
             Article(
                 "https://example.com/old",
-                "Ars Technica",
-                "海外IT",
+                "Android Developers",
+                "Android",
                 "Original",
                 "Summary",
                 "2026-10-30",

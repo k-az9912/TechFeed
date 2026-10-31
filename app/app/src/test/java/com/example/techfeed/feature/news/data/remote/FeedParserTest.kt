@@ -68,4 +68,18 @@ class FeedParserTest {
     fun malformedXmlFails() {
         assertThrows(Exception::class.java) { parse("<rss><item>") }
     }
+
+    @Test
+    fun documentReadsFeedTitleAndRejectsHtml() {
+        val document =
+            FeedParser()
+                .parseDocument(
+                    """<feed xmlns="http://www.w3.org/2005/Atom"><title>Example News</title></feed>"""
+                        .byteInputStream(),
+                    source,
+                )
+        assertEquals("Example News", document.title)
+        assertTrue(document.articles.isEmpty())
+        assertThrows(Exception::class.java) { parse("<html><title>Not a feed</title></html>") }
+    }
 }

@@ -30,7 +30,7 @@
 | --- | --- |
 | Room DB | `news.db`、version 1 |
 | テーブル | `saved_articles` |
-| DataStore | `news_settings` |
+| DataStore | `news_settings`（表示設定、カスタム配信元、カスタムタグ） |
 | Room スキーマ | `app/app/schemas/com.example.techfeed.core.database.NewsDatabase/` |
 
 DB スキーマ変更時は migration を追加。

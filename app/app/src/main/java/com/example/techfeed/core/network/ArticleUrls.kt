@@ -10,3 +10,10 @@ fun safeArticleUrl(value: String): String? = runCatching {
         ?.toASCIIString()
 }
     .getOrNull()
+
+fun safeFeedUrl(value: String): String? = runCatching {
+    URI(value.trim())
+        .takeIf { it.scheme == "https" && !it.host.isNullOrBlank() && it.userInfo == null }
+        ?.toASCIIString()
+}
+    .getOrNull()

@@ -6,6 +6,8 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.techfeed.feature.settings.model.moveInOrder
+import com.example.techfeed.feature.news.ui.CustomFeedState
+import com.example.techfeed.feature.news.ui.CustomTagState
 import com.example.techfeed.feature.translation.model.TranslationModelState
 import com.example.techfeed.testsupport.uiSettings
 import org.junit.Assert.assertEquals
@@ -36,6 +38,9 @@ class NewsSettingsScreenTest {
                     setTag = { _, _ -> },
                     moveSource = { _, _ -> },
                     moveTag = { _, _ -> },
+                    customFeedState = CustomFeedState(),
+                    addCustomFeed = {},
+                    removeCustomFeed = {},
                     modelState = TranslationModelState(ready = true),
                     downloadModel = {},
                     back = {},
@@ -63,6 +68,9 @@ class NewsSettingsScreenTest {
                                 tagOrder = moveInOrder(settings.value.tagOrder, tag, offset),
                             )
                     },
+                    customFeedState = CustomFeedState(),
+                    addCustomFeed = {},
+                    removeCustomFeed = {},
                     modelState = TranslationModelState(ready = true),
                     downloadModel = {},
                     back = {},
@@ -90,6 +98,9 @@ class NewsSettingsScreenTest {
                     { _, _ -> },
                     { _, _ -> },
                     { _, _ -> },
+                    CustomFeedState(),
+                    {},
+                    {},
                     TranslationModelState(ready = false),
                     { downloads++ },
                     {},
@@ -101,5 +112,70 @@ class NewsSettingsScreenTest {
         compose.runOnIdle { assertEquals(0, downloads) }
         compose.onNodeWithText("ダウンロード", substring = false).performClick()
         compose.runOnIdle { assertEquals(1, downloads) }
+    }
+
+
+    @Test
+    fun customFeedUrlIsSentForValidation() {
+        var submitted = ""
+        compose.setContent {
+            MaterialTheme {
+                NewsSettingsScreen(
+                    settings = uiSettings.copy(sourceOrder = emptyList(), tagOrder = emptyList()),
+                    error = null,
+                    setSource = { _, _ -> },
+                    setTag = { _, _ -> },
+                    moveSource = { _, _ -> },
+                    moveTag = { _, _ -> },
+                    customFeedState = CustomFeedState(),
+                    addCustomFeed = { submitted = it },
+                    removeCustomFeed = {},
+                    modelState = TranslationModelState(ready = true),
+                    downloadModel = {},
+                    back = {},
+                )
+            }
+        }
+
+        compose.onNodeWithTag("custom_feed_url").performTextInput("https://example.com/feed.xml")
+        compose.onNodeWithTag("add_custom_feed").performClick()
+        compose.runOnIdle { assertEquals("https://example.com/feed.xml", submitted) }
+    }
+
+    @Test
+    fun customTagNameAndKeywordsAreSubmitted() {
+        var submittedName = ""
+        var submittedKeywords = ""
+        compose.setContent {
+            MaterialTheme {
+                NewsSettingsScreen(
+                    settings = uiSettings.copy(sourceOrder = emptyList(), tagOrder = emptyList()),
+                    error = null,
+                    setSource = { _, _ -> },
+                    setTag = { _, _ -> },
+                    moveSource = { _, _ -> },
+                    moveTag = { _, _ -> },
+                    customFeedState = CustomFeedState(),
+                    addCustomFeed = {},
+                    removeCustomFeed = {},
+                    modelState = TranslationModelState(ready = true),
+                    downloadModel = {},
+                    back = {},
+                    customTagState = CustomTagState(),
+                    addCustomTag = { name, keywords ->
+                        submittedName = name
+                        submittedKeywords = keywords
+                    },
+                )
+            }
+        }
+
+        compose.onNodeWithTag("custom_tag_name").performTextInput("Compose")
+        compose.onNodeWithTag("custom_tag_keywords").performTextInput("Jetpack Compose, Kotlin")
+        compose.onNodeWithTag("add_custom_tag").performClick()
+        compose.runOnIdle {
+            assertEquals("Compose", submittedName)
+            assertEquals("Jetpack Compose, Kotlin", submittedKeywords)
+        }
     }
 }

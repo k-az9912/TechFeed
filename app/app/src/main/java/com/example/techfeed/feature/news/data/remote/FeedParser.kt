@@ -10,7 +10,12 @@ import org.xmlpull.v1.XmlPullParserFactory
 
 /** RSS 2.0 / Atom の直下のフィールドだけを読む。外部エンティティは解決しない。 */
 class FeedParser @Inject constructor() {
-    fun parse(input: InputStream, source: FeedSource): List<Article> {
+    data class Document(val title: String, val articles: List<Article>)
+
+    fun parse(input: InputStream, source: FeedSource): List<Article> =
+        parseDocument(input, source).articles
+
+    fun parseDocument(input: InputStream, source: FeedSource): Document {
         val parser =
             XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser()
         if (parser.getFeature(XmlPullParser.FEATURE_PROCESS_DOCDECL)) {
@@ -18,6 +23,9 @@ class FeedParser @Inject constructor() {
         }
         parser.setInput(input, null)
         val result = mutableListOf<Article>()
+        var rootName = ""
+        var channelDepth = -1
+        var feedTitle = ""
         var depth = -1
         var title = ""
         var summary = ""
@@ -27,12 +35,24 @@ class FeedParser @Inject constructor() {
             if (parser.eventType == XmlPullParser.DOCDECL) error("DOCTYPE is unsupported")
             if (parser.eventType == XmlPullParser.START_TAG) {
                 val tag = parser.name
+                if (rootName.isEmpty()) {
+                    rootName = tag.lowercase()
+                    check(rootName in setOf("rss", "feed", "rdf")) { "Unsupported feed XML" }
+                }
+                if (depth == -1 && tag == "channel") channelDepth = parser.depth
                 if (tag in listOf("item", "entry") && depth == -1) {
                     depth = parser.depth
                     title = ""
                     summary = ""
                     link = ""
                     date = ""
+                } else if (
+                    depth == -1 &&
+                        tag == "title" &&
+                        (parser.depth == channelDepth + 1 ||
+                            (rootName == "feed" && parser.depth == 2))
+                ) {
+                    feedTitle = plain(readText(parser))
                 } else if (depth >= 0 && parser.depth == depth + 1) {
                     when (tag) {
                         "title" -> title = readText(parser)
@@ -69,11 +89,18 @@ class FeedParser @Inject constructor() {
                         )
                 }
                 depth = -1
+            } else if (
+                parser.eventType == XmlPullParser.END_TAG &&
+                    parser.name == "channel" &&
+                    parser.depth == channelDepth
+            ) {
+                channelDepth = -1
             }
             parser.nextToken()
         }
+        check(rootName.isNotEmpty()) { "Empty feed XML" }
         check(depth == -1 && parser.depth == 0) { "Incomplete feed XML" }
-        return result.distinctBy { it.id }
+        return Document(feedTitle, result.distinctBy { it.id })
     }
 
     private fun readText(parser: XmlPullParser): String {

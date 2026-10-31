@@ -85,7 +85,12 @@ fun NewsScreen(
     val activeSource = selectedSource.takeIf { it in sources } ?: "すべて"
     val activeTag = category.takeIf { it in categories } ?: "すべて"
     val visible =
-        filterArticles(if (selectedTab == 0) state.articles else saved, activeSource, activeTag)
+        filterArticles(
+            if (selectedTab == 0) state.articles else saved,
+            activeSource,
+            activeTag,
+            settings.tags,
+        )
 
     val filterSelection = listOf(selectedTab.toString(), activeSource, activeTag)
     var previousSelection by rememberSaveable { mutableStateOf(filterSelection) }
@@ -201,7 +206,8 @@ fun NewsScreen(
                             article = article,
                             tags =
                                 settings.tagOrder.filter {
-                                    it in settings.visibleTags && it in articleTags(article)
+                                    it in settings.visibleTags &&
+                                        it in articleTags(article, settings.tags)
                                 },
                             saved = article.id in savedIds,
                             openArticle = { selectedArticleId = article.id },

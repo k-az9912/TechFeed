@@ -10,9 +10,16 @@ class FeedSourcesTest {
 
     @Test
     fun translationButtonTargetsEnglishSourcesOnly() {
-        assertTrue(isEnglishArticle(article(source = "Ars Technica")))
         assertTrue(isEnglishArticle(article(source = "Android Developers")))
         assertFalse(isEnglishArticle(article(source = "IPA お知らせ")))
         assertFalse(isEnglishArticle(article(source = "Qiita")))
+    }
+
+    @Test
+    fun defaultsOnlyContainReviewedSources() {
+        assertEquals(
+            listOf("Android Developers", "Qiita", "Zenn", "IPA お知らせ", "IPA セキュリティ"),
+            availableSources,
+        )
     }
 }

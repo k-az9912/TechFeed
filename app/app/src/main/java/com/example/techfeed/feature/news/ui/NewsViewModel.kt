@@ -3,9 +3,9 @@ package com.example.techfeed.feature.news.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.techfeed.R
-import com.example.techfeed.core.feed.feedSources
 import com.example.techfeed.core.feed.isEnglishArticle
 import com.example.techfeed.core.model.Article
+import com.example.techfeed.core.network.safeFeedUrl
 import com.example.techfeed.core.ui.UiText
 import com.example.techfeed.feature.news.data.NewsRepository
 import com.example.techfeed.feature.news.domain.resolveFeedResults
@@ -47,6 +47,10 @@ constructor(
     val translations = _translations.asStateFlow()
     private val _modelState = MutableStateFlow(TranslationModelState())
     val modelState = _modelState.asStateFlow()
+    private val _customFeedState = MutableStateFlow(CustomFeedState())
+    val customFeedState = _customFeedState.asStateFlow()
+    private val _customTagState = MutableStateFlow(CustomTagState())
+    val customTagState = _customTagState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -103,6 +107,92 @@ constructor(
 
     fun moveSource(source: String, offset: Int) = saveOrder {
         settingsRepository.moveSource(source, offset)
+    }
+
+    fun addCustomFeed(value: String) {
+        if (_customFeedState.value.adding) return
+        val url = safeFeedUrl(value)
+        if (url == null) {
+            _customFeedState.value =
+                CustomFeedState(error = UiText(R.string.error_custom_feed_url))
+            return
+        }
+        if (_settings.value?.feeds?.any { it.url == url } == true) {
+            _customFeedState.value =
+                CustomFeedState(error = UiText(R.string.error_custom_feed_duplicate))
+            return
+        }
+        _customFeedState.value = CustomFeedState(adding = true)
+        viewModelScope.launch {
+            try {
+                val source = repository.inspectFeed(url)
+                settingsRepository.addCustomSource(source)
+                _customFeedState.value = CustomFeedState(addedSource = source.name)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _customFeedState.value =
+                    CustomFeedState(error = UiText(R.string.error_custom_feed_register))
+            }
+        }
+    }
+
+    fun removeCustomFeed(name: String) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.removeCustomSource(name)
+                _customFeedState.value = CustomFeedState()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _customFeedState.value =
+                    CustomFeedState(error = UiText(R.string.error_custom_feed_remove))
+            }
+        }
+    }
+
+    fun addCustomTag(name: String, keywordText: String) {
+        val normalizedName = name.trim()
+        val keywords =
+            keywordText
+                .split(Regex("[,、\\n]"))
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .distinct()
+        when {
+            normalizedName.isEmpty() || keywords.isEmpty() ->
+                _customTagState.value =
+                    CustomTagState(error = UiText(R.string.error_custom_tag_input))
+            _settings.value?.tags?.any { it.name == normalizedName } == true ->
+                _customTagState.value =
+                    CustomTagState(error = UiText(R.string.error_custom_tag_duplicate))
+            else ->
+                viewModelScope.launch {
+                    try {
+                        settingsRepository.addCustomTag(normalizedName, keywords)
+                        _customTagState.value = CustomTagState(addedTag = normalizedName.take(40))
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        _customTagState.value =
+                            CustomTagState(error = UiText(R.string.error_custom_tag_save))
+                    }
+                }
+        }
+    }
+
+    fun removeCustomTag(name: String) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.removeCustomTag(name)
+                _customTagState.value = CustomTagState()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _customTagState.value =
+                    CustomTagState(error = UiText(R.string.error_custom_tag_remove))
+            }
+        }
     }
 
     private fun saveOrder(change: suspend () -> Unit) {
@@ -185,8 +275,9 @@ constructor(
             )
         }
         fetchJob = viewModelScope.launch {
+            val feeds = _settings.value?.feeds ?: return@launch
             val results = supervisorScope {
-                feedSources
+                feeds
                     .filter { it.name in enabled }
                     .map { source ->
                         async {

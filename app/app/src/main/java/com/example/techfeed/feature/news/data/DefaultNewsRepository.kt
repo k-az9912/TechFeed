@@ -19,4 +19,6 @@ constructor(
     override suspend fun toggle(article: Article) = dao.toggle(article)
 
     override suspend fun fetch(source: FeedSource): List<Article> = feedClient.fetch(source)
+
+    override suspend fun inspectFeed(url: String): FeedSource = feedClient.inspect(url)
 }

@@ -10,4 +10,6 @@ interface NewsRepository {
     suspend fun toggle(article: Article)
 
     suspend fun fetch(source: FeedSource): List<Article>
+
+    suspend fun inspectFeed(url: String): FeedSource
 }

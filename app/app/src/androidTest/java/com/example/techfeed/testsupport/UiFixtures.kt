@@ -33,8 +33,8 @@ val itmediaSecurity =
 val englishArticle =
     Article(
         "https://example.com/english",
-        "Ars Technica",
-        "海外IT",
+        "Android Developers",
+        "Android",
         "English headline",
         "English summary",
         "2026-10-28",

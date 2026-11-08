@@ -1,7 +1,14 @@
 package com.example.techfeed.feature.settings.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +31,7 @@ import com.example.techfeed.feature.news.ui.CustomTagState
 import com.example.techfeed.feature.settings.model.NewsSettings
 import com.example.techfeed.feature.translation.model.TranslationModelState
 import com.example.techfeed.feature.translation.ui.ModelDownloadDialog
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +51,10 @@ fun NewsSettingsScreen(
     customTagState: CustomTagState = CustomTagState(),
     addCustomTag: (String, String) -> Unit = { _, _ -> },
     removeCustomTag: (String) -> Unit = {},
+    setNotificationsEnabled: (Boolean) -> Unit = {},
+    setNotificationIntervalMinutes: (Int) -> Unit = {},
+    setNotificationSource: (String?) -> Unit = {},
+    setNotificationTag: (String?) -> Unit = {},
 ) {
     val context = LocalContext.current
     var confirmDownload by rememberSaveable { mutableStateOf(false) }
@@ -51,6 +63,14 @@ fun NewsSettingsScreen(
     var tagKeywords by rememberSaveable { mutableStateOf("") }
     var pendingFeedRemoval by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingTagRemoval by rememberSaveable { mutableStateOf<String?>(null) }
+    var notificationPermissionDenied by rememberSaveable { mutableStateOf(false) }
+    var showNotificationSources by rememberSaveable { mutableStateOf(false) }
+    var showNotificationTags by rememberSaveable { mutableStateOf(false) }
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            notificationPermissionDenied = !granted
+            if (granted) setNotificationsEnabled(true)
+        }
     val sourceOrder = settings?.sourceOrder ?: availableSources
     val tagOrder = settings?.tagOrder ?: availableTags
     val customNames = settings?.feeds?.map { it.name }?.toSet().orEmpty() - availableSources.toSet()
@@ -189,6 +209,99 @@ fun NewsSettingsScreen(
             }
             item {
                 Text(
+                    stringResource(R.string.settings_notifications_title),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Text(stringResource(R.string.settings_notifications_hint))
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.settings_notifications_enabled),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(
+                        checked = settings?.notificationsEnabled == true,
+                        enabled = settings != null,
+                        onCheckedChange = { enabled ->
+                            if (!enabled) {
+                                setNotificationsEnabled(false)
+                            } else if (
+                                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                                    context.checkSelfPermission(
+                                        Manifest.permission.POST_NOTIFICATIONS,
+                                    ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                setNotificationsEnabled(true)
+                            } else {
+                                notificationPermissionLauncher.launch(
+                                    Manifest.permission.POST_NOTIFICATIONS,
+                                )
+                            }
+                        },
+                        modifier = Modifier.testTag("notification_switch"),
+                    )
+                }
+                if (notificationPermissionDenied) {
+                    Text(
+                        stringResource(R.string.notification_permission_denied),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                Text(stringResource(R.string.settings_notification_interval))
+                val intervals = listOf(15, 30, 60, 180, 360, 720, 1_440)
+                var intervalIndex by remember(settings?.notificationIntervalMinutes) {
+                    mutableFloatStateOf(
+                        intervals.indexOf(settings?.notificationIntervalMinutes)
+                            .coerceAtLeast(0)
+                            .toFloat(),
+                    )
+                }
+                val selectedMinutes = intervals[intervalIndex.roundToInt()]
+                Text(
+                    if (selectedMinutes < 60) {
+                        stringResource(R.string.notification_minutes, selectedMinutes)
+                    } else {
+                        stringResource(R.string.notification_hours, selectedMinutes / 60)
+                    },
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Slider(
+                    value = intervalIndex,
+                    onValueChange = { value ->
+                        val newIndex = value.roundToInt().coerceIn(intervals.indices)
+                        if (newIndex != intervalIndex.roundToInt()) {
+                            intervalIndex = newIndex.toFloat()
+                            setNotificationIntervalMinutes(intervals[newIndex])
+                        } else {
+                            intervalIndex = value
+                        }
+                    },
+                    enabled = settings != null,
+                    valueRange = 0f..intervals.lastIndex.toFloat(),
+                    steps = intervals.size - 2,
+                    modifier = Modifier.fillMaxWidth().testTag("notification_interval_slider"),
+                )
+                NotificationFilterSummaryRow(
+                    title = stringResource(R.string.settings_notification_sources),
+                    selected = settings?.notificationSources,
+                    enabled = settings != null,
+                    modifier = Modifier.testTag("notification_sources_row"),
+                    open = { showNotificationSources = true },
+                )
+                HorizontalDivider()
+                NotificationFilterSummaryRow(
+                    title = stringResource(R.string.settings_notification_tags),
+                    selected = settings?.notificationTags,
+                    enabled = settings != null,
+                    modifier = Modifier.testTag("notification_tags_row"),
+                    open = { showNotificationTags = true },
+                )
+            }
+            item {
+                Text(
                     stringResource(R.string.translation_model),
                     style = MaterialTheme.typography.titleLarge,
                 )
@@ -276,6 +389,116 @@ fun NewsSettingsScreen(
                 }
             },
         )
+    }
+    if (showNotificationSources) {
+        NotificationFilterSheet(
+            title = stringResource(R.string.settings_notification_sources),
+            values = sourceOrder,
+            selected = settings?.notificationSources,
+            tagPrefix = "notification_source",
+            enabled = settings != null,
+            selectAll = { setNotificationSource(null) },
+            toggle = setNotificationSource,
+            dismiss = { showNotificationSources = false },
+        )
+    }
+    if (showNotificationTags) {
+        NotificationFilterSheet(
+            title = stringResource(R.string.settings_notification_tags),
+            values = tagOrder,
+            selected = settings?.notificationTags,
+            tagPrefix = "notification_tag",
+            enabled = settings != null,
+            selectAll = { setNotificationTag(null) },
+            toggle = setNotificationTag,
+            dismiss = { showNotificationTags = false },
+        )
+    }
+}
+
+@Composable
+private fun NotificationFilterSummaryRow(
+    title: String,
+    selected: Set<String>?,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    open: () -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = {
+            Text(
+                if (selected == null) stringResource(R.string.all)
+                else stringResource(R.string.notification_selected_count, selected.size),
+            )
+        },
+        trailingContent = { Text("›", style = MaterialTheme.typography.headlineSmall) },
+        modifier = modifier.fillMaxWidth().clickable(enabled = enabled, onClick = open),
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NotificationFilterSheet(
+    title: String,
+    values: List<String>,
+    selected: Set<String>?,
+    tagPrefix: String,
+    enabled: Boolean,
+    selectAll: () -> Unit,
+    toggle: (String) -> Unit,
+    dismiss: () -> Unit,
+) {
+    ModalBottomSheet(onDismissRequest = dismiss) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        ) {
+            Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            TextButton(onClick = dismiss) { Text(stringResource(R.string.close)) }
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 560.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        ) {
+            item {
+                NotificationFilterOption(
+                    label = stringResource(R.string.all),
+                    checked = selected == null,
+                    enabled = enabled,
+                    modifier = Modifier.testTag("$tagPrefix:all"),
+                    select = selectAll,
+                )
+            }
+            items(values, key = { it }) { value ->
+                NotificationFilterOption(
+                    label = value,
+                    checked = value in selected.orEmpty(),
+                    enabled = enabled,
+                    modifier = Modifier.testTag("$tagPrefix:$value"),
+                    select = { toggle(value) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationFilterOption(
+    label: String,
+    checked: Boolean,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    select: () -> Unit,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().clickable(enabled = enabled, onClick = select).padding(12.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null, enabled = enabled)
+        Spacer(Modifier.width(12.dp))
+        Text(label, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

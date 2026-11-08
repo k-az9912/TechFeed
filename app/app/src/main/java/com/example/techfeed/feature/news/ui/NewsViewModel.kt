@@ -9,6 +9,7 @@ import com.example.techfeed.core.network.safeFeedUrl
 import com.example.techfeed.core.ui.UiText
 import com.example.techfeed.feature.news.data.NewsRepository
 import com.example.techfeed.feature.news.domain.resolveFeedResults
+import com.example.techfeed.feature.notifications.NotificationScheduler
 import com.example.techfeed.feature.settings.data.SettingsRepository
 import com.example.techfeed.feature.settings.model.NewsSettings
 import com.example.techfeed.feature.translation.domain.TranslationService
@@ -30,6 +31,7 @@ constructor(
     private val repository: NewsRepository,
     private val settingsRepository: SettingsRepository,
     private val translator: TranslationService,
+    private val notificationScheduler: NotificationScheduler = NotificationScheduler.None,
 ) : ViewModel() {
     private val _state = MutableStateFlow(NewsState())
     val state = _state.asStateFlow()
@@ -51,6 +53,7 @@ constructor(
     val customFeedState = _customFeedState.asStateFlow()
     private val _customTagState = MutableStateFlow(CustomTagState())
     val customTagState = _customTagState.asStateFlow()
+    private var notificationSchedule: Pair<Boolean, Int>? = null
 
     init {
         viewModelScope.launch {
@@ -74,6 +77,12 @@ constructor(
                 .collect { next ->
                     val sourcesChanged = _settings.value?.sources != next.sources
                     _settings.value = next
+                    val nextSchedule =
+                        next.notificationsEnabled to next.notificationIntervalMinutes
+                    if (notificationSchedule != nextSchedule) {
+                        notificationSchedule = nextSchedule
+                        notificationScheduler.sync(nextSchedule.first, nextSchedule.second)
+                    }
                     if (sourcesChanged) refresh()
                 }
         }
@@ -191,6 +200,54 @@ constructor(
             } catch (_: Exception) {
                 _customTagState.value =
                     CustomTagState(error = UiText(R.string.error_custom_tag_remove))
+            }
+        }
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.setNotificationsEnabled(enabled)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                _state.update { it.copy(error = UiText(R.string.error_notification_save)) }
+            }
+        }
+    }
+
+    fun setNotificationIntervalMinutes(minutes: Int) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.setNotificationIntervalMinutes(minutes)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                _state.update { it.copy(error = UiText(R.string.error_notification_save)) }
+            }
+        }
+    }
+
+    fun setNotificationTag(tag: String?) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.setNotificationTag(tag)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                _state.update { it.copy(error = UiText(R.string.error_notification_save)) }
+            }
+        }
+    }
+
+    fun setNotificationSource(source: String?) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.setNotificationSource(source)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                _state.update { it.copy(error = UiText(R.string.error_notification_save)) }
             }
         }
     }

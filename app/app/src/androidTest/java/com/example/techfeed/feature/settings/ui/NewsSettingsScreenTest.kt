@@ -2,6 +2,7 @@ package com.example.techfeed.feature.settings.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -176,6 +177,84 @@ class NewsSettingsScreenTest {
         compose.runOnIdle {
             assertEquals("Compose", submittedName)
             assertEquals("Jetpack Compose, Kotlin", submittedKeywords)
+        }
+    }
+
+    @Test
+    fun notificationIntervalIsSubmitted() {
+        var submitted = 0
+        compose.setContent {
+            MaterialTheme {
+                NewsSettingsScreen(
+                    settings = uiSettings.copy(sourceOrder = emptyList(), tagOrder = emptyList()),
+                    error = null,
+                    setSource = { _, _ -> },
+                    setTag = { _, _ -> },
+                    moveSource = { _, _ -> },
+                    moveTag = { _, _ -> },
+                    customFeedState = CustomFeedState(),
+                    addCustomFeed = {},
+                    removeCustomFeed = {},
+                    modelState = TranslationModelState(ready = true),
+                    downloadModel = {},
+                    back = {},
+                    setNotificationIntervalMinutes = { submitted = it },
+                )
+            }
+        }
+
+        compose.onNodeWithTag("settings_list").performScrollToNode(
+            hasTestTag("notification_interval_slider"),
+        )
+        compose.onNodeWithTag("notification_interval_slider").performSemanticsAction(
+            SemanticsActions.SetProgress,
+        ) { setProgress -> setProgress(1f) }
+        compose.runOnIdle { assertEquals(30, submitted) }
+    }
+
+    @Test
+    fun notificationCustomSourceAndTagFiltersAreSubmitted() {
+        var source: String? = null
+        var tag: String? = null
+        compose.setContent {
+            MaterialTheme {
+                NewsSettingsScreen(
+                    settings =
+                        uiSettings.copy(
+                            sourceOrder = listOf("My Feed"),
+                            tagOrder = listOf("Compose"),
+                        ),
+                    error = null,
+                    setSource = { _, _ -> },
+                    setTag = { _, _ -> },
+                    moveSource = { _, _ -> },
+                    moveTag = { _, _ -> },
+                    customFeedState = CustomFeedState(),
+                    addCustomFeed = {},
+                    removeCustomFeed = {},
+                    modelState = TranslationModelState(ready = true),
+                    downloadModel = {},
+                    back = {},
+                    setNotificationSource = { source = it },
+                    setNotificationTag = { tag = it },
+                )
+            }
+        }
+
+        compose.onNodeWithTag("settings_list").performScrollToNode(
+            hasTestTag("notification_sources_row"),
+        )
+        compose.onNodeWithTag("notification_sources_row").performClick()
+        compose.onNodeWithTag("notification_source:My Feed").performClick()
+        compose.onNodeWithText("閉じる").performClick()
+        compose.onNodeWithTag("settings_list").performScrollToNode(
+            hasTestTag("notification_tags_row"),
+        )
+        compose.onNodeWithTag("notification_tags_row").performClick()
+        compose.onNodeWithTag("notification_tag:Compose").performClick()
+        compose.runOnIdle {
+            assertEquals("My Feed", source)
+            assertEquals("Compose", tag)
         }
     }
 }

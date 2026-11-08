@@ -48,6 +48,21 @@
     <string name="custom_tag_added">%1$s を追加しました。</string>
     <string name="remove_tag_title">タグを削除しますか？</string>
     <string name="remove_tag_message">%1$s の設定を削除します。記事や配信元は削除されません。</string>
+    <string name="settings_notifications_title">新着通知</string>
+    <string name="settings_notifications_hint">有効な配信元を端末が定期確認します。省電力設定などにより、指定時刻より遅れる場合があります。</string>
+    <string name="settings_notifications_enabled">新着記事を通知</string>
+    <string name="settings_notification_interval">確認間隔</string>
+    <string name="settings_notification_sources">通知する配信元</string>
+    <string name="settings_notification_sources_hint">「すべて」または通知を受け取りたい配信元を選択します。</string>
+    <string name="settings_notification_tags">通知する話題タグ</string>
+    <string name="settings_notification_tags_hint">「すべて」または通知を受け取りたいタグを選択します。</string>
+    <string name="notification_selected_count">%1$d件選択</string>
+    <string name="notification_minutes">%1$d分</string>
+    <string name="notification_hours">%1$d時間</string>
+    <string name="notification_permission_denied">通知が許可されていません。端末のアプリ設定から許可できます。</string>
+    <string name="notification_channel_name">新着記事</string>
+    <string name="notification_single_title">%1$sから新着記事</string>
+    <string name="notification_multiple_title">新着記事 %1$d件</string>
     <string name="translation_model">翻訳モデル</string>
     <string name="downloading">ダウンロード中…</string>
     <string name="model_ready">英語→日本語：取得済み</string>
@@ -81,5 +96,6 @@
     <string name="error_custom_tag_duplicate">同じ名前のタグがすでにあります。</string>
     <string name="error_custom_tag_save">タグを保存できませんでした。</string>
     <string name="error_custom_tag_remove">タグを削除できませんでした。</string>
+    <string name="error_notification_save">通知設定を保存できませんでした。</string>
     <string name="translation_disclaimer" translatable="false">THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</string>
 </resources>

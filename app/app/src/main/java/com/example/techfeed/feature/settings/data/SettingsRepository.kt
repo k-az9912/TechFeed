@@ -2,7 +2,9 @@ package com.example.techfeed.feature.settings.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.example.techfeed.core.feed.FeedSource
@@ -12,6 +14,7 @@ import com.example.techfeed.core.tags.defaultTagDefinitions
 import com.example.techfeed.feature.settings.model.NewsSettings
 import com.example.techfeed.feature.settings.model.moveInOrder
 import com.example.techfeed.feature.settings.model.normalizeOrder
+import com.example.techfeed.feature.notifications.data.calculateNotificationHistory
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import javax.inject.Inject
@@ -26,6 +29,14 @@ class SettingsRepository @Inject constructor(private val store: DataStore<Prefer
     private val sourceOrderKey = stringPreferencesKey("source_order")
     private val customSourcesKey = stringPreferencesKey("custom_sources")
     private val customTagsKey = stringPreferencesKey("custom_tags")
+    private val notificationsEnabledKey = booleanPreferencesKey("notifications_enabled")
+    private val notificationIntervalMinutesKey = intPreferencesKey("notification_interval_minutes")
+    private val legacyNotificationIntervalHoursKey = intPreferencesKey("notification_interval_hours")
+    private val notificationSourcesKey = stringSetPreferencesKey("notification_sources")
+    private val notificationTagsKey = stringSetPreferencesKey("notification_tags")
+    private val notificationHistoryInitializedKey =
+        booleanPreferencesKey("notification_history_initialized")
+    private val notifiedArticleHashesKey = stringSetPreferencesKey("notified_article_hashes")
     val settings =
         store.data.map { prefs ->
             val customSources = decodeSources(prefs[customSourcesKey])
@@ -43,6 +54,21 @@ class SettingsRepository @Inject constructor(private val store: DataStore<Prefer
                     normalizeOrder(prefs[sourceOrderKey]?.split("\n") ?: emptyList(), sourceNames),
                 feeds = feeds,
                 tags = tags,
+                notificationsEnabled = prefs[notificationsEnabledKey] ?: false,
+                notificationIntervalMinutes =
+                    (prefs[notificationIntervalMinutesKey]
+                            ?: prefs[legacyNotificationIntervalHoursKey]?.times(60)
+                            ?: DEFAULT_NOTIFICATION_INTERVAL_MINUTES)
+                        .takeIf { it in NOTIFICATION_INTERVALS }
+                        ?: DEFAULT_NOTIFICATION_INTERVAL_MINUTES,
+                notificationSources =
+                    prefs[notificationSourcesKey]
+                        ?.intersect(sourceNames.toSet())
+                        ?.takeIf { it.isNotEmpty() },
+                notificationTags =
+                    prefs[notificationTagsKey]
+                        ?.intersect(tagNames.toSet())
+                        ?.takeIf { it.isNotEmpty() },
             )
         }
 
@@ -50,6 +76,7 @@ class SettingsRepository @Inject constructor(private val store: DataStore<Prefer
         store.edit { prefs ->
             val old = prefs[disabledSources] ?: emptySet()
             prefs[disabledSources] = if (enabled) old - name else old + name
+            resetNotificationHistory(prefs)
         }
     }
 
@@ -90,6 +117,7 @@ class SettingsRepository @Inject constructor(private val store: DataStore<Prefer
             prefs[sourceOrderKey] =
                 normalizeOrder(prefs[sourceOrderKey]?.split("\n") ?: emptyList(), available)
                     .joinToString("\n")
+            resetNotificationHistory(prefs)
         }
     }
 
@@ -102,7 +130,87 @@ class SettingsRepository @Inject constructor(private val store: DataStore<Prefer
             prefs[sourceOrderKey] =
                 normalizeOrder(prefs[sourceOrderKey]?.split("\n") ?: emptyList(), available)
                     .joinToString("\n")
+            val notificationSources = prefs[notificationSourcesKey]
+            if (notificationSources != null) {
+                val remainingNotificationSources = notificationSources - name
+                if (remainingNotificationSources.isEmpty()) prefs.remove(notificationSourcesKey)
+                else prefs[notificationSourcesKey] = remainingNotificationSources
+            }
+            resetNotificationHistory(prefs)
         }
+    }
+
+    suspend fun setNotificationsEnabled(enabled: Boolean) {
+        store.edit { prefs ->
+            prefs[notificationsEnabledKey] = enabled
+            if (!enabled) resetNotificationHistory(prefs)
+        }
+    }
+
+    suspend fun setNotificationIntervalMinutes(minutes: Int) {
+        require(minutes in NOTIFICATION_INTERVALS)
+        store.edit { prefs ->
+            prefs[notificationIntervalMinutesKey] = minutes
+            prefs.remove(legacyNotificationIntervalHoursKey)
+        }
+    }
+
+    suspend fun setNotificationTag(tag: String?) {
+        store.edit { prefs ->
+            if (tag == null) {
+                prefs.remove(notificationTagsKey)
+                return@edit
+            }
+            val available =
+                (defaultTagDefinitions + decodeTags(prefs[customTagsKey])).map { it.name }.toSet()
+            require(tag in available)
+            val current = prefs[notificationTagsKey]
+            val updated = if (current == null) setOf(tag) else current.toggle(tag)
+            if (updated.isEmpty()) prefs.remove(notificationTagsKey)
+            else prefs[notificationTagsKey] = updated
+        }
+    }
+
+    suspend fun setNotificationSource(source: String?) {
+        store.edit { prefs ->
+            if (source == null) {
+                prefs.remove(notificationSourcesKey)
+                return@edit
+            }
+            val available =
+                (feedSources + decodeSources(prefs[customSourcesKey])).map { it.name }.toSet()
+            require(source in available)
+            val current = prefs[notificationSourcesKey]
+            val updated = if (current == null) setOf(source) else current.toggle(source)
+            if (updated.isEmpty()) prefs.remove(notificationSourcesKey)
+            else prefs[notificationSourcesKey] = updated
+        }
+    }
+
+    suspend fun updateNotificationHistory(
+        articleIds: List<String>,
+        allowInitialization: Boolean,
+    ): Set<String> {
+        var newIds = emptySet<String>()
+        store.edit { prefs ->
+            val initialized = prefs[notificationHistoryInitializedKey] ?: false
+            if (!initialized && !allowInitialization) return@edit
+            val update =
+                calculateNotificationHistory(
+                    articleIds = articleIds,
+                    previousHashes = prefs[notifiedArticleHashesKey] ?: emptySet(),
+                    initialized = initialized,
+                )
+            newIds = update.newArticleIds.toSet()
+            prefs[notifiedArticleHashesKey] = update.storedHashes
+            prefs[notificationHistoryInitializedKey] = true
+        }
+        return newIds
+    }
+
+    private fun resetNotificationHistory(prefs: androidx.datastore.preferences.core.MutablePreferences) {
+        prefs[notificationHistoryInitializedKey] = false
+        prefs.remove(notifiedArticleHashesKey)
     }
 
     suspend fun addCustomTag(name: String, keywords: List<String>) {
@@ -132,6 +240,12 @@ class SettingsRepository @Inject constructor(private val store: DataStore<Prefer
             prefs[tagOrderKey] =
                 normalizeOrder(prefs[tagOrderKey]?.split("\n") ?: emptyList(), available)
                     .joinToString("\n")
+            val notificationTags = prefs[notificationTagsKey]
+            if (notificationTags != null) {
+                val remainingNotificationTags = notificationTags - name
+                if (remainingNotificationTags.isEmpty()) prefs.remove(notificationTagsKey)
+                else prefs[notificationTagsKey] = remainingNotificationTags
+            }
         }
     }
 
@@ -195,4 +309,12 @@ class SettingsRepository @Inject constructor(private val store: DataStore<Prefer
 
     private fun decode(value: String): String =
         String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8)
+
+    companion object {
+        val NOTIFICATION_INTERVALS = setOf(15, 30, 60, 180, 360, 720, 1_440)
+        const val DEFAULT_NOTIFICATION_INTERVAL_MINUTES = 720
+    }
 }
+
+private fun Set<String>.toggle(value: String): Set<String> =
+    if (value in this) this - value else this + value

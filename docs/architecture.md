@@ -11,6 +11,7 @@
 | feature/news/ui | 一覧・詳細・画面部品、ViewModel、表示状態 |
 | feature/settings | DataStore、設定値・表示順、設定画面、DI |
 | feature/translation | ML Kit、翻訳状態、モデル取得確認、帰属表示、DI |
+| feature/notifications | WorkManager による定期取得、新着判定、端末通知 |
 | core | 共有モデル、配信元、タグ、Room、URL 検査、日時変換、外部リンク、表示文言、DB の DI |
 
 ## 依存関係
@@ -30,7 +31,7 @@
 | --- | --- |
 | Room DB | `news.db`、version 1 |
 | テーブル | `saved_articles` |
-| DataStore | `news_settings`（表示設定、カスタム配信元、カスタムタグ） |
+| DataStore | `news_settings`（表示設定、カスタム配信元、カスタムタグ、通知設定・通知済み記事ハッシュ） |
 | Room スキーマ | `app/app/schemas/com.example.techfeed.core.database.NewsDatabase/` |
 
 DB スキーマ変更時は migration を追加。

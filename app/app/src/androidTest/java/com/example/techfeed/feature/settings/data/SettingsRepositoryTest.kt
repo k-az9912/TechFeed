@@ -84,6 +84,21 @@ class SettingsRepositoryTest {
         assertTrue(repository.settings.first().sources.isEmpty())
     }
 
+    @Test
+    fun notificationSettingsSurviveStoreRecreation() = runBlocking {
+        repository.setNotificationsEnabled(true)
+        repository.setNotificationIntervalMinutes(30)
+        repository.setNotificationSource("Qiita")
+        repository.setNotificationTag("AI")
+        reopenStore()
+
+        val restored = repository.settings.first()
+        assertTrue(restored.notificationsEnabled)
+        assertEquals(30, restored.notificationIntervalMinutes)
+        assertEquals(setOf("Qiita"), restored.notificationSources)
+        assertEquals(setOf("AI"), restored.notificationTags)
+    }
+
 
     @Test
     fun customSourceSurvivesRecreationAndCanBeRemoved() = runBlocking {

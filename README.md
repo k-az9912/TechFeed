@@ -8,7 +8,12 @@ IT ニュースの取得・絞り込み・保存・翻訳に対応した Android
 | --- | --- | --- |
 | <img src="docs/images/news.png" width="240" alt="テスト記事一覧と取得元・タグによる絞り込み" /> | <img src="docs/images/translation.png" width="240" alt="英語記事の日本語訳と原文切り替え" /> | <img src="docs/images/settings.png" width="240" alt="取得元と話題タグの表示切り替え・並べ替え" /> |
 
-固定テストデータを表示した Android エミュレーター（API 37）で撮影。
+| 新着通知の設定 | Androidに届いた実通知 |
+| --- | --- |
+| <img src="docs/images/notifications.png" width="240" alt="スライダー式の確認間隔と配信元・話題タグの絞り込み設定" /> | <img src="docs/images/notification-result.png" width="240" alt="配信元名を含めてAndroidの通知欄に表示されたTechFeedの新着記事通知" /> |
+
+Android エミュレーター（API 37）で撮影。記事画面には固定テストデータを使用。
+実通知はAndroidテストから通知処理を実行し、NotificationManagerへの投稿と表示内容を検証して撮影。
 
 ## 機能
 
@@ -19,6 +24,7 @@ IT ニュースの取得・絞り込み・保存・翻訳に対応した Android
 - 取得元・タグの表示設定と並べ替え
 - タグ名と判定キーワードによるカスタムタグの追加・削除
 - 英語記事の日本語翻訳（ML Kit、端末内処理）
+- WorkManagerによる新着記事の端末通知（配信元・話題タグで絞り込み、15分〜24時間間隔）
 
 - 標準配信元：Android Developers、Qiita、Zenn、IPA お知らせ、IPA セキュリティ。
   - カスタム配信元には、利用者自身が利用条件を確認したRSS／Atomフィードの登録を推奨。
@@ -54,7 +60,7 @@ GitHub Actions：PR・develop／main への push で lint・JUnit・debug ビル
 ## 制約
 
 - Android 8.0 (Oreo)以上（API 26）
-- 更新は起動時・手動操作時のみ
+- 画面の更新は起動時・手動操作時のみ（通知有効時はバックグラウンドで新着確認）
 - 全文保存・ログイン・端末間同期は未対応
 - 翻訳モデルは初回ダウンロードが必要
 - カスタム配信元はHTTPSのフィードURLを直接指定（Webサイトからの自動検出は未対応）

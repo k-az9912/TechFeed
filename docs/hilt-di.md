@@ -14,16 +14,18 @@ ViewModel は Repository・設定・翻訳サービスをコンストラクタ�
 | SettingsModule | 本番 DataStore の提供 |
 | NewsModule | NewsRepository → DefaultNewsRepository の接続 |
 | TranslationModule | TranslationService → ArticleTranslator、ML Kit Translator の提供 |
+| NotificationModule | NotificationScheduler → WorkManagerNotificationScheduler の接続 |
 
 NewsRepository → DefaultNewsRepository → ArticleDao・FeedClient → FeedParser。
 SettingsRepository → DataStore。
 TranslationService → ArticleTranslator → ML Kit Translator。
+NewsNotificationWorker は SingletonComponent の EntryPoint から NewsRepository と SettingsRepository を取得。
 
 ## スコープ
 
 | 指定 | 対象 | 共有範囲 |
 | --- | --- | --- |
-| `@Singleton` | NewsDatabase、DefaultNewsRepository、SettingsRepository | SingletonComponent |
+| `@Singleton` | NewsDatabase、DefaultNewsRepository、SettingsRepository、WorkManagerNotificationScheduler | SingletonComponent |
 | `@ViewModelScoped` | ArticleTranslator、ML Kit Translator | ViewModelComponent |
 | スコープなし | FeedClient、FeedParser、DAO 提供関数 | 同一インスタンスの保証なし |
 

@@ -14,4 +14,8 @@ data class NewsSettings(
     val sourceOrder: List<String> = availableSources,
     val feeds: List<FeedSource> = feedSources,
     val tags: List<TagDefinition> = defaultTagDefinitions,
+    val notificationsEnabled: Boolean = false,
+    val notificationIntervalMinutes: Int = 720,
+    val notificationSources: Set<String>? = null,
+    val notificationTags: Set<String>? = null,
 )
